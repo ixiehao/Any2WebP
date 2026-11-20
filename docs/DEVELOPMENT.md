@@ -10,7 +10,7 @@ brew install webp giflib ffmpeg
 open dist/Any2WebP.app
 ```
 
-脚本使用 Xcode Clang 和 Rust 工具链自带的 `rust-lld` 将画质滤镜编译为 WebAssembly，并将原生处理进程放到应用包内，使用临时签名并校验签名。已有应用包可以先归档，或通过 `ANY2WEBP_DIST` 指定另一输出目录。
+脚本使用支持 WebAssembly 的 Clang 和 Rust 工具链自带的 `rust-lld` 编译画质滤镜。若 Xcode Clang 缺少 `wasm32` 目标，安装 Homebrew 的 `llvm`，再设置 `export ANY2WEBP_WASM_CLANG="$(brew --prefix llvm)/bin/clang"`。原生处理进程仍由 Xcode Clang 构建。已有应用包可以先归档，或通过 `ANY2WEBP_DIST` 指定另一输出目录。
 
 构建会读取锁定的 Cargo 依赖，把第三方版本、许可原文及匹配版本的源码链接写入应用的 `Contents/Resources/RUST-NOTICES.txt`。项目 MIT 许可证、原生库和图标声明及 libwebp 专利授权也随包分发。遇到上游 crate 缺许可原文时，在 [许可补充目录](licenses/README.md)登记其锁定版本与来源。
 

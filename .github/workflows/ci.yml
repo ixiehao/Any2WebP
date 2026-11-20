@@ -25,8 +25,9 @@ jobs:
         env:
           HOMEBREW_NO_AUTO_UPDATE: '1'
         run: |
-          brew install webp giflib ffmpeg
+          brew install webp giflib ffmpeg llvm
           rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
+          printf 'ANY2WEBP_WASM_CLANG=%s/bin/clang\n' "$(brew --prefix llvm)" >> "$GITHUB_ENV"
       - name: Run media, UI module, and Rust regressions
         run: ./Scripts/verify.sh
       - name: Build and verify a signed local app
