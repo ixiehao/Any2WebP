@@ -19,7 +19,7 @@ dist/.dmg-tools/bin/python3 -m pip install -r Scripts/dmg-requirements.txt
 ./Scripts/prepare-release.sh --preview
 ```
 
-脚本生成 `dist/releases/vX.Y.Z-arm64-preview/Any2WebP-X.Y.Z-arm64-preview.dmg` 和同名 `.sha256` 文件。试用包使用 ad-hoc 签名。打开 DMG 后，Finder 安装窗口显示应用图标、应用程序入口和三语拖拽说明。打包后会挂载最终镜像并检查窗口设置、位置、背景引用、`Applications` 链接和签名。视频组件可在应用中通过「帮助 → 视频依赖」检查和安装。
+脚本生成 `dist/releases/vX.Y.Z-arm64-preview/Any2WebP-X.Y.Z-arm64-preview.dmg` 和同名 `.sha256` 文件。试用包使用 ad-hoc 签名。打开 DMG 后，Finder 安装窗口显示应用图标、应用程序入口和三语拖拽说明。打包后会挂载最终镜像并检查窗口设置、位置、背景引用、`Applications` 链接和签名。视频组件可在应用中通过「帮助 → 检查依赖…」检查和安装。
 
 ## 准备正式版
 

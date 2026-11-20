@@ -1,6 +1,6 @@
 [package]
 name = "any2webp"
-version = "0.2.28"
+version = "0.2.29"
 edition = "2021"
 description = "Local WebP and GIF conversion for macOS"
 repository = "https://github.com/ixiehao/Any2WebP"
@@ -20,3 +20,6 @@ core-foundation = "0.10"
 core-foundation-sys = "0.8"
 libc = "0.2"
 time = { version = "0.3", features = ["parsing"] }
+objc2 = "0.6"
+objc2-app-kit = { version = "0.3", default-features = false, features = ["NSApplication", "NSAttributedString", "NSColor", "NSFont", "NSParagraphStyle", "NSResponder", "NSText", "objc2-core-foundation"] }
+objc2-foundation = { version = "0.3", default-features = false, features = ["NSAttributedString", "NSDictionary", "NSString", "NSURL"] }

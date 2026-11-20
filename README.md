@@ -47,8 +47,9 @@ Google measured about 26% smaller files for lossless WebP versus PNG, and 25–3
 ## Install and use
 
 - Requires **Apple Silicon and macOS 26.0 or later**. Open the DMG and drag Any2WebP into Applications. Signing details are in the release notes. [GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
-- Image conversion works out of the box. Video import uses FFmpeg and ffprobe. To check or install them with an existing Homebrew setup, open **Help → Video Dependencies**.
+- Image conversion works out of the box. Video import uses FFmpeg and ffprobe. Open **Help → Check Dependencies** to view **Video Dependencies** and check or repair the tools.
 - Supported inputs include JPEG, PNG, WebP, GIF, APNG, HEIC/HEIF, AVIF, TIFF, BMP, ICO, PSD, JPEG 2000, JPEG XL, MP4, MOV, and WebM. Export to WebP or GIF.
 - English, Simplified Chinese, and Japanese are available. The app follows the system by default, with manual selection in the macOS **Language** menu.
+- Use **Help → Check for Updates** to check GitHub Releases.
 
 [Development and testing](docs/README.md) · [Changelog](CHANGELOG.md) · [Support](SUPPORT.md) · [Privacy](PRIVACY.md) · [Third-party notices](NOTICE.md)
