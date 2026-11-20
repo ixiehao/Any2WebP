@@ -1,3 +1,4 @@
+mod about;
 mod adjustment;
 mod frames;
 mod localized_menu;
@@ -813,6 +814,7 @@ fn main() {
         .manage(PreviewJob::default())
         .manage(TrimPlaybackJob::default())
         .manage(NavigationJobs::default())
+        .manage(about::AboutPanel::default())
         .plugin(tauri_plugin_dialog::init())
         .on_menu_event(localized_menu::handle_menu_event)
         .invoke_handler(tauri::generate_handler![

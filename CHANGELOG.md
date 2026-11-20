@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.29
+
+Unreleased.
+
+- English. The native About window includes project information and links. Check for Updates and Check Dependencies are in the Help menu. Follow System is the first option in the Language menu.
+- 简体中文。原生「关于」窗口加入项目信息和链接。「帮助」菜单提供「检查更新…」和「检查依赖…」，「语言」菜单首项为「跟随系统」。
+- 日本語。「Any2WebP について」にプロジェクト情報とリンクを追加しました。「ヘルプ」からアップデートと依存ツールを確認できます。「言語」の先頭は「システムに従う」です。
+
 ## 0.2.28
 
 First public preview.

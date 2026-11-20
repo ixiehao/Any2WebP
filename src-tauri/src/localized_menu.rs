@@ -1,10 +1,10 @@
-use crate::AppResult;
+use crate::{about::{AboutPanel, Labels as AboutLabels}, AppResult};
 use core_foundation::{array::CFArray, base::TCFType, string::CFString};
 use core_foundation_sys::locale::CFLocaleCopyPreferredLanguages;
 use serde::Deserialize;
 use tauri::{
-    menu::{AboutMetadata, CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem as Item, Submenu, HELP_SUBMENU_ID, WINDOW_SUBMENU_ID},
-    AppHandle, Emitter,
+    menu::{CheckMenuItem, Menu, MenuEvent, MenuItem, PredefinedMenuItem as Item, Submenu, HELP_SUBMENU_ID, WINDOW_SUBMENU_ID},
+    AppHandle, Emitter, Manager, State,
 };
 
 #[tauri::command]
@@ -24,6 +24,7 @@ pub fn system_languages() -> Vec<String> {
 #[serde(rename_all = "PascalCase")]
 pub struct MenuLabels {
     about: String,
+    about_details: AboutLabels,
     check_updates: String,
     dependency_check: String,
     hide: String,
@@ -52,21 +53,14 @@ pub struct MenuLabels {
 
 const LANGUAGE_CHOICES: [(&str, &str); 4] = [
     ("system", ""),
-    ("zh-CN", "简体中文"),
     ("en", "English"),
+    ("zh-CN", "简体中文"),
     ("ja", "日本語"),
 ];
 
 fn build(app: &AppHandle, labels: &MenuLabels, preference: &str) -> tauri::Result<Menu<tauri::Wry>> {
-    let about = AboutMetadata {
-        name: Some("Any2WebP".into()),
-        version: Some(app.package_info().version.to_string()),
-        icon: app.default_window_icon().cloned(),
-        ..Default::default()
-    };
     let app_menu = Submenu::with_items(app, "Any2WebP", true, &[
-        &Item::about(app, Some(&labels.about), Some(about))?,
-        &MenuItem::with_id(app, "check-updates", format!("{}…", labels.check_updates), true, None::<&str>)?,
+        &MenuItem::with_id(app, "show-about", &labels.about, true, None::<&str>)?,
         &Item::separator(app)?,
         &Item::services(app, Some(&labels.services))?,
         &Item::separator(app)?,
@@ -105,21 +99,28 @@ fn build(app: &AppHandle, labels: &MenuLabels, preference: &str) -> tauri::Resul
         &Item::close_window(app, Some(&labels.close))?,
     ])?;
     let help = Submenu::with_id_and_items(app, HELP_SUBMENU_ID, &labels.help, true, &[
+        &MenuItem::with_id(app, "check-updates", format!("{}…", labels.check_updates), true, None::<&str>)?,
         &MenuItem::with_id(app, "video-dependencies", format!("{}…", labels.dependency_check), true, None::<&str>)?,
     ])?;
     Menu::with_items(app, &[&app_menu, &file, &edit, &view, &language, &window, &help])
 }
 
 #[tauri::command]
-pub fn set_menu_language(app: AppHandle, labels: MenuLabels, preference: String) -> AppResult<()> {
+pub fn set_menu_language(
+    app: AppHandle, about: State<'_, AboutPanel>, labels: MenuLabels, preference: String,
+) -> AppResult<()> {
     build(&app, &labels, &preference)
         .and_then(|menu| app.set_menu(menu))
-        .map(|_| ())
+        .map(|_| about.set_labels(labels.about_details))
         .map_err(|error| error.to_string())
 }
 
 pub fn handle_menu_event(app: &AppHandle, event: MenuEvent) {
     let id: &str = event.id().as_ref();
+    if id == "show-about" {
+        app.state::<AboutPanel>().show(app);
+        return;
+    }
     let action = if matches!(id, "add-files" | "check-updates" | "video-dependencies") { id }
         else if let Some(choice) = id.strip_prefix("language:") { choice }
         else { return };

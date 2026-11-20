@@ -47,8 +47,9 @@ Google の比較では、可逆圧縮の WebP は PNG より約 26%、非可逆�
 ## インストールと対応形式
 
 - **Apple Silicon 搭載の Mac と macOS 26.0 以降**が必要です。DMG を開き、Any2WebP を「アプリケーション」にドラッグします。署名についてはリリースノートをご確認ください。[GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
-- 画像の変換はそのまま使えます。動画の読み込みには FFmpeg と ffprobe が必要です。「ヘルプ → 動画の依存ツール」から確認でき、Homebrew があればインストールや修復を行えます。
+- 画像の変換はそのまま使えます。動画の読み込みには FFmpeg と ffprobe が必要です。「ヘルプ → 依存ツールを確認…」から「動画の依存ツール」を開けます。Homebrew があればインストールや修復を行えます。
 - JPEG、PNG、WebP、GIF、APNG、HEIC/HEIF、AVIF、TIFF、BMP、ICO、PSD、JPEG 2000、JPEG XL、MP4、MOV、WebM などを読み込めます。書き出しは WebP または GIF です。
 - 英語、簡体字中国語、日本語に対応します。既定ではシステム設定に従い、macOS の「言語」メニューで変更できます。
+- 「ヘルプ → アップデートを確認」で GitHub Releases の更新を確認できます。
 
 [開発ドキュメント](docs/README.md) · [変更履歴](CHANGELOG.md) · [サポート](SUPPORT.md) · [プライバシー](PRIVACY.md) · [サードパーティーのライセンス](NOTICE.md)

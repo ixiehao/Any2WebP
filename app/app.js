@@ -78,8 +78,18 @@ function refreshLanguage(choice, save = false) {
   const menuKeys = ["About", "Hide", "HideOthers", "Services", "Quit", "File", "Edit", "Undo", "Redo",
     "Cut", "Copy", "Paste", "SelectAll", "View", "Window", "Minimize", "Zoom", "Close", "FullScreen", "Help", "Language"];
   const labels = { ...Object.fromEntries(menuKeys.map(key => [key, t("menu" + key)])),
-    AddFiles: t("addFiles"), CheckUpdates: t("checkUpdates"), DependencyCheck: t("dependencyCheck"),
-    FollowSystem: t("followSystem") };
+    AddFiles: t("addFiles"), CheckUpdates: t("checkUpdates"), DependencyCheck: t("checkDependencies"),
+    FollowSystem: t("followSystem"),
+    AboutDetails: {
+      locale,
+      description: t("aboutDescription"),
+      developer: t("aboutDeveloper"),
+      website: t("aboutWebsite"),
+      feedback: t("aboutFeedback"),
+      localProcessing: t("aboutLocalProcessing"),
+      license: t("aboutLicense"),
+    },
+  };
   menuEventsReady.then(() => invoke("set_menu_language", { labels, preference })).catch(console.warn);
 }
 
