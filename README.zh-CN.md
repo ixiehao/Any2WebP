@@ -4,7 +4,7 @@
 
 **简洁好用的 WebP 图片转换软件。** 把照片、截图、动图和视频片段转成 WebP 或 GIF。拖入文件，选好导出格式，点一下即可在 Mac 上快速完成批量转换。完全免费，采用 MIT 许可证开源。
 
-[下载 macOS 版](https://github.com/ixiehao/Any2WebP/releases) · [MIT 许可证](LICENSE)
+[下载 macOS 版](https://ixiehao.github.io/Any2WebP/zh/download/) · [官网](https://ixiehao.github.io/Any2WebP/zh/) · [MIT 许可证](LICENSE)
 
 ![Any2WebP 同步对比 GIF 原图与 WebP 成品](docs/assets/any2webp-zh-CN.png)
 

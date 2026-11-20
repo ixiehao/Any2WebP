@@ -4,7 +4,7 @@
 
 **Mac で使える、シンプルな WebP 画像変換アプリ。** 写真、スクリーンショット、アニメーション、動画の一部を WebP や GIF に変換できます。ファイルをドラッグして、形式を選んで一括変換。MIT ライセンスのオープンソースで、無料で使えます。
 
-[macOS 版をダウンロード](https://github.com/ixiehao/Any2WebP/releases) · [MIT ライセンス](LICENSE)
+[macOS 版をダウンロード](https://ixiehao.github.io/Any2WebP/ja/download/) · [公式サイト](https://ixiehao.github.io/Any2WebP/ja/) · [MIT ライセンス](LICENSE)
 
 ![Any2WebP で変換前の GIF と WebP の書き出し結果を比較](docs/assets/any2webp-ja.png)
 

@@ -4,7 +4,7 @@ English · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
 **A simple WebP image converter for Mac.** Turn photos, screenshots, animations, and video clips into WebP or GIF. Drag in your files, choose a format, and convert them quickly in a local batch. Any2WebP is free and open source under the MIT license.
 
-[Download for macOS](https://github.com/ixiehao/Any2WebP/releases) · [MIT license](LICENSE)
+[Download for macOS](https://ixiehao.github.io/Any2WebP/download/) · [Website](https://ixiehao.github.io/Any2WebP/) · [MIT license](LICENSE)
 
 ![Any2WebP comparing the original GIF and exported WebP side by side](docs/assets/any2webp-en.png)
 
