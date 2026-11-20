@@ -7,7 +7,7 @@ node website/build.mjs
 python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 ```
 
-`content.mjs` 保存三语文案，构建脚本复用项目截图、图标、测试动图和许可文件。正式发包后更新 `build.mjs` 中的发布版本与附件名，验证下载和 SHA-256 链接。三个语言的 `download/` 路径供 README 使用。
+`content.mjs` 保存三语文案，构建脚本复用项目截图、图标、测试动图和许可文件。官网按钮通过 GitHub `releases/latest/download/` 直接获取附件。发布新版本后更新 `build.mjs` 中的附件名并验证下载和 SHA-256 链接。三个语言的 `download/` 路径供 README 使用。
 
 ## 首屏
 
