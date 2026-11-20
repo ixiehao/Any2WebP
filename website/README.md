@@ -1,4 +1,13 @@
-# Any2WebP 官网素材
+# Any2WebP 官网
+
+使用 GitHub Pages 发布三种语言的静态页面。英文在根路径，简体中文在 `zh/`，日语在 `ja/`。[Any2WebP 官网](https://ixiehao.github.io/Any2WebP/)
+
+```sh
+node website/build.mjs
+python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
+```
+
+`content.mjs` 保存三语文案，构建脚本复用项目截图、图标、测试动图和许可文件。正式发包后更新 `build.mjs` 中的发布版本与附件名，验证下载和 SHA-256 链接。三个语言的 `download/` 路径供 README 使用。
 
 ## 首屏
 
