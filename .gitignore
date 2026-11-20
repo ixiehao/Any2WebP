@@ -1,0 +1,12 @@
+.DS_Store
+/src-tauri/target/
+/src-tauri/binaries/any2webp-codec-*
+/src-tauri/gen/
+/dist/
+/app/adjustment.wasm
+/design/
+/.venv/
+/.env
+/.env.*
+
+__pycache__/

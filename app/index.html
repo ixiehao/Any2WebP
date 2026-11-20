@@ -1,0 +1,427 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>Any2WebP</title>
+  <link rel="stylesheet" href="style.css">
+  <script type="module" src="app.js"></script>
+</head>
+<body>
+  <svg class="symbols" xmlns="http://www.w3.org/2000/svg" aria-hidden="true">
+    <!-- Tabler Icons Outline v3.49.0 (MIT). See THIRD-PARTY-NOTICES.txt. -->
+    <symbol id="arrows-exchange" viewBox="0 0 24 24">
+      <path d="M7 10h14l-4 -4" />
+      <path d="M17 14h-14l4 4" />
+    </symbol>
+    <symbol id="photo-plus" viewBox="0 0 24 24">
+      <path d="M15 8h.01" />
+      <path d="M12.5 21h-6.5a3 3 0 0 1 -3 -3v-12a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v6.5" />
+      <path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l4 4" />
+      <path d="M14 14l1 -1c.67 -.644 1.45 -.824 2.182 -.54" />
+      <path d="M16 19h6" />
+      <path d="M19 16v6" />
+    </symbol>
+    <symbol id="movie" viewBox="0 0 24 24">
+      <path d="M4 6a2 2 0 0 1 2 -2h12a2 2 0 0 1 2 2v12a2 2 0 0 1 -2 2h-12a2 2 0 0 1 -2 -2l0 -12" />
+      <path d="M8 4l0 16" />
+      <path d="M16 4l0 16" />
+      <path d="M4 8l4 0" />
+      <path d="M4 16l4 0" />
+      <path d="M4 12l16 0" />
+      <path d="M16 8l4 0" />
+      <path d="M16 16l4 0" />
+    </symbol>
+    <symbol id="folder" viewBox="0 0 24 24"><path d="M5 4h4l3 3h7a2 2 0 0 1 2 2v8a2 2 0 0 1 -2 2h-14a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2" /></symbol>
+    <symbol id="folder-open" viewBox="0 0 24 24">
+      <path d="M5 19l2.757 -7.351a1 1 0 0 1 .936 -.649h12.307a1 1 0 0 1 .986 1.164l-.996 5.211a2 2 0 0 1 -1.964 1.625h-14.026a2 2 0 0 1 -2 -2v-11a2 2 0 0 1 2 -2h4l3 3h7a2 2 0 0 1 2 2v2" />
+    </symbol>
+    <symbol id="photo-edit" viewBox="0 0 24 24">
+      <path d="M15 8h.01" />
+      <path d="M11 20h-4a3 3 0 0 1 -3 -3v-10a3 3 0 0 1 3 -3h10a3 3 0 0 1 3 3v4" />
+      <path d="M4 15l4 -4c.928 -.893 2.072 -.893 3 0l3 3" />
+      <path d="M14 14l1 -1c.31 -.298 .644 -.497 .987 -.596" />
+      <path d="M18.42 15.61a2.1 2.1 0 0 1 2.97 2.97l-3.39 3.42h-3v-3l3.42 -3.39" />
+    </symbol>
+    <symbol id="image" viewBox="0 0 24 24"><path d="M15 8h.01" /><path d="M3 6a3 3 0 0 1 3 -3h12a3 3 0 0 1 3 3v12a3 3 0 0 1 -3 3h-12a3 3 0 0 1 -3 -3v-12" /><path d="M3 16l5 -5c.928 -.893 2.072 -.893 3 0l5 5" /><path d="M14 14l1 -1c.928 -.893 2.072 -.893 3 0l3 3" /></symbol>
+    <symbol id="remove" viewBox="0 0 24 24"><path d="M18 6l-12 12" /><path d="M6 6l12 12" /></symbol>
+    <symbol id="play-icon" viewBox="0 0 24 24"><path d="M7 4v16l13 -8l-13 -8" /></symbol>
+    <symbol id="pause-icon" viewBox="0 0 24 24"><path d="M6 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12" /><path d="M14 6a1 1 0 0 1 1 -1h2a1 1 0 0 1 1 1v12a1 1 0 0 1 -1 1h-2a1 1 0 0 1 -1 -1l0 -12" /></symbol>
+    <symbol id="prev" viewBox="0 0 24 24"><path d="M20 5v14l-12 -7l12 -7" /><path d="M4 5l0 14" /></symbol>
+    <symbol id="next" viewBox="0 0 24 24"><path d="M4 5v14l12 -7l-12 -7" /><path d="M20 5l0 14" /></symbol>
+    <symbol id="arrow" viewBox="0 0 24 24"><path d="M9 6l6 6l-6 6" /></symbol>
+    <symbol id="check" viewBox="0 0 24 24"><path d="M5 12l5 5l10 -10" /></symbol>
+    <symbol id="zoom-out" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M7 10l6 0" /><path d="M21 21l-6 -6" /></symbol>
+    <symbol id="zoom-in" viewBox="0 0 24 24"><path d="M3 10a7 7 0 1 0 14 0a7 7 0 1 0 -14 0" /><path d="M7 10l6 0" /><path d="M10 7l0 6" /><path d="M21 21l-6 -6" /></symbol>
+  </svg>
+  <header class="brandbar" data-tauri-drag-region>
+    <div class="brand-identity">
+      <img src="icon.png" width="28" height="28" alt="">
+      <h1>Any2WebP</h1>
+      <span id="app-version" class="app-version" hidden></span>
+    </div>
+    <button id="updates" class="update-available" type="button" aria-haspopup="dialog" hidden>
+      <span id="update-badge"></span><svg aria-hidden="true"><use href="#arrow"/></svg>
+    </button>
+  </header>
+  <main class="layout">
+    <aside class="sidebar" aria-label="文件队列" data-i18n-aria-label="queue">
+      <div class="queue-actions">
+        <button class="button secondary queue-action primary-entry" id="add-files" type="button">
+          <svg aria-hidden="true"><use href="#arrows-exchange"/></svg><span data-i18n="convertFiles">转换文件</span>
+        </button>
+        <button class="button secondary queue-action" id="create-animation" type="button" aria-haspopup="dialog">
+          <svg aria-hidden="true"><use href="#photo-plus"/></svg><span data-i18n="createAnimation">多图合成动图</span>
+        </button>
+        <button class="button secondary queue-action" id="video-to-animation" type="button" aria-haspopup="dialog">
+          <svg aria-hidden="true"><use href="#movie"/></svg><span data-i18n="videoToAnimation">视频转动图</span>
+        </button>
+      </div>
+      <div class="queue-heading">
+        <h2><span data-i18n="queue">文件队列</span> <span id="count">0</span></h2>
+        <button class="text-button" type="button" id="clear" disabled><span data-i18n="clear">清空</span></button>
+      </div>
+      <div id="queue" class="queue" aria-label="已添加的文件" data-i18n-aria-label="addedFiles"></div>
+      <p class="status" id="status" role="status" aria-live="polite"></p>
+
+    </aside>
+
+    <section class="workbench" aria-label="预览与检查" data-i18n-aria-label="previewArea">
+      <div id="workspace-heading" class="workspace-heading" hidden>
+        <h2 id="selected-name"></h2>
+        <div class="workspace-actions">
+          <button id="edit-frames" class="button secondary workspace-action" type="button" aria-haspopup="dialog" hidden>
+            <svg aria-hidden="true"><use href="#photo-edit"/></svg><span data-i18n="editFrames">编辑帧</span>
+          </button>
+          <button id="reveal" class="button secondary workspace-action" type="button" aria-label="在访达中显示" data-i18n-aria-label="reveal" hidden>
+            <svg aria-hidden="true"><use href="#folder-open"/></svg><span data-i18n="finder">访达</span>
+          </button>
+        </div>
+      </div>
+      <div id="empty" class="empty">
+        <div class="drop-prompt">
+          <span class="drop-icon"><svg aria-hidden="true"><use href="#image"/></svg></span>
+          <h3><span data-i18n="dropPrompt">拖入图片或视频</span></h3>
+          <p><span data-i18n="formatHint">支持 JPG、PNG、GIF、WebP、MP4 等</span></p>
+          <button class="button primary" id="empty-add" type="button"><span data-i18n="pickFiles">选择文件</span></button>
+        </div>
+      </div>
+      <div id="comparison" class="comparison" hidden>
+        <div class="preview-pair">
+          <article class="viewer">
+            <div class="viewer-heading"><h3 id="before-title">原图</h3><span id="before-size">—</span></div>
+            <div class="stage checker">
+              <canvas id="before" aria-label="原图预览" data-i18n-aria-label="sourcePreview" hidden></canvas>
+              <p id="before-message" class="stage-message">正在读取原图…</p>
+            </div>
+          </article>
+          <article class="viewer">
+            <div class="viewer-heading">
+              <h3 id="after-title">处理后</h3><span id="after-size">—</span>
+            </div>
+            <div class="stage checker">
+              <canvas id="after" aria-label="成品预览" data-i18n-aria-label="resultPreview" hidden></canvas>
+              <p id="after-message" class="stage-message">开始处理后显示结果</p>
+            </div>
+          </article>
+        </div>
+
+        <div id="timeline" class="timeline" hidden>
+          <div class="transport" aria-label="播放控制" data-i18n-aria-label="transport">
+            <button class="icon-button" type="button" id="previous-frame" aria-label="上一帧" data-i18n-aria-label="prevFrame" title="上一帧" data-i18n-title="prevFrame" disabled>
+              <svg aria-hidden="true"><use href="#prev"/></svg>
+            </button>
+            <button class="icon-button play" type="button" id="play" title="播放" data-i18n-title="play" aria-label="播放" data-i18n-aria-label="play" disabled>
+              <svg aria-hidden="true"><use id="play-symbol" href="#play-icon"/></svg>
+            </button>
+            <button class="icon-button" type="button" id="next-frame" aria-label="下一帧" data-i18n-aria-label="nextFrame" title="下一帧" data-i18n-title="nextFrame" disabled>
+              <svg aria-hidden="true"><use href="#next"/></svg>
+            </button>
+          </div>
+          <input type="range" id="scrub" min="0" max="1" step="1" value="0" aria-label="同步预览时间" data-i18n-aria-label="seekPreview" disabled>
+          <span id="time" class="time">0.00 / 0.00 s</span>
+        </div>
+
+        <section id="video-settings" class="video-settings" aria-labelledby="video-heading" hidden>
+          <div class="video-toolbar">
+            <div id="video-summary" class="video-summary">
+              <h3 id="video-heading" data-i18n="clip">视频片段</h3>
+              <p id="video-meta"></p>
+              <p id="video-range" class="video-range" hidden></p>
+            </div>
+            <div class="video-fields">
+              <label for="clip-fps">
+                <span data-i18n="fpsField">帧率</span>
+                <select id="clip-fps" disabled>
+                  <option value="5">5 FPS</option>
+                  <option value="8">8 FPS</option>
+                  <option value="10">10 FPS</option>
+                  <option value="12">12 FPS</option>
+                  <option value="15">15 FPS</option>
+                  <option value="20">20 FPS</option>
+                  <option value="24">24 FPS</option>
+                  <option value="30">30 FPS</option>
+                </select>
+              </label>
+              <label for="clip-edge">
+                <span data-i18n="edgeField">长边</span>
+                <select id="clip-edge" disabled>
+                  <option value="240">240 px</option>
+                  <option value="320">320 px</option>
+                  <option value="480">480 px</option>
+                  <option value="640">640 px</option>
+                  <option value="720">720 px</option>
+                  <option value="960">960 px</option>
+                  <option value="1080">1080 px</option>
+                  <option value="1280">1280 px</option>
+                  <option value="1920">1920 px</option>
+                </select>
+              </label>
+              <button id="edit-clip" class="button secondary" type="button" aria-haspopup="dialog" data-i18n="trimEdit" disabled>剪切片段</button>
+            </div>
+          </div>
+          <p class="video-note" id="video-note" role="status" hidden></p>
+          <button id="video-dependency" class="text-button" type="button" data-i18n="dependencyCheck" hidden>视频依赖</button>
+        </section>
+        <div id="facts" class="preview-facts" hidden>
+          <section class="preview-details" aria-labelledby="facts-before-label facts-before-name">
+            <div class="preview-details-heading">
+              <h3 id="facts-before-label" data-i18n="sourceDetails">原画面信息</h3>
+              <span id="facts-before-name"></span>
+            </div>
+            <dl class="facts" id="facts-before-values">
+              <div><dt data-i18n="canvas">画布</dt><dd id="facts-before-dimensions">—</dd></div>
+              <div><dt id="facts-before-frame-label">当前帧 · 原始延时</dt><dd id="facts-before-frame">—</dd></div>
+              <div><dt data-i18n="playCount">播放次数</dt><dd id="facts-before-loop">—</dd></div>
+              <div><dt data-i18n="alpha">透明度</dt><dd id="facts-before-alpha">—</dd></div>
+            </dl>
+            <p id="facts-before-warning" class="preview-details-message warning" hidden></p>
+          </section>
+          <section class="preview-details" aria-labelledby="facts-after-label facts-after-name">
+            <div class="preview-details-heading">
+              <h3 id="facts-after-label" data-i18n="resultDetails">成品信息</h3>
+              <span id="facts-after-name"></span>
+            </div>
+            <dl class="facts" id="facts-after-values" hidden>
+              <div><dt data-i18n="canvas">画布</dt><dd id="facts-after-dimensions">—</dd></div>
+              <div><dt id="facts-after-frame-label">当前帧 · 成品延时</dt><dd id="facts-after-frame">—</dd></div>
+              <div><dt data-i18n="playCount">播放次数</dt><dd id="facts-after-loop">—</dd></div>
+              <div><dt data-i18n="alpha">透明度</dt><dd id="facts-after-alpha">—</dd></div>
+            </dl>
+            <p id="facts-after-message" class="preview-details-message"></p>
+            <p id="facts-after-summary" class="result-summary" hidden></p>
+          </section>
+        </div>
+      </div>
+
+    </section>
+    <aside class="inspector" aria-label="调整与导出" data-i18n-aria-label="inspector">
+      <div class="inspector-scroll">
+        <details id="quality-settings" class="quality-settings" hidden>
+          <summary>
+            <span data-i18n="qualitySettings">画质调整</span>
+            <span id="quality-summary" class="quality-summary" data-i18n="qualityApplied" hidden>已调整</span>
+            <svg aria-hidden="true"><use href="#arrow"/></svg>
+          </summary>
+          <div class="quality-fields">
+            <div class="quality-field">
+              <label for="quality-shadows"><span data-i18n="shadows">暗部提亮</span></label><output id="quality-shadows-value" for="quality-shadows">0%</output>
+              <input id="quality-shadows" type="range" min="0" max="100" step="1" value="0">
+            </div>
+            <div class="quality-field">
+              <label for="quality-denoise"><span data-i18n="denoise">降噪</span></label><output id="quality-denoise-value" for="quality-denoise">0%</output>
+              <input id="quality-denoise" type="range" min="0" max="100" step="1" value="0">
+            </div>
+            <div class="quality-field">
+              <label for="quality-sharpen"><span data-i18n="sharpen">细节增强</span></label><output id="quality-sharpen-value" for="quality-sharpen">0%</output>
+              <input id="quality-sharpen" type="range" min="0" max="100" step="1" value="0">
+            </div>
+          </div>
+          <div class="quality-actions">
+            <button id="quality-reset" class="text-button" type="button" title="将当前素材的三项强度归零" data-i18n-title="resetQualityHint" disabled><span data-i18n="resetQuality">归零</span></button>
+            <button id="quality-apply-all" class="button secondary" type="button"
+              title="把当前素材的三项强度复制到队列中的其他素材" data-i18n-title="applyQualityHint" disabled><span data-i18n="applyQuality">应用到全部素材</span></button>
+          </div>
+        </details>
+        <form id="settings" class="settings">
+          <div class="card-heading"><h2 data-i18n="exportSettings">导出设置</h2></div>
+          <fieldset id="output-format" class="format-options">
+            <legend class="field-label" data-i18n="exportFormat">输出格式</legend>
+            <div class="format-choices">
+              <label><input type="radio" name="format" value="webp" checked><span>WebP</span></label>
+              <label><input type="radio" name="format" value="gif"><span>GIF</span></label>
+            </div>
+          </fieldset>
+          <label class="field-label" for="mode"><span data-i18n="compression">压缩方式</span></label>
+          <select id="mode">
+            <option id="default-mode" value="standard">无损压缩</option>
+            <option value="target" data-i18n="targetSize">按目标体积</option>
+          </select>
+          <div id="target-field" hidden>
+            <label class="field-label" for="target"><span data-i18n="limitPerFile">单个文件的上限</span></label>
+            <div class="input-unit"><input id="target" type="number" min="1" max="65536" value="200" step="1"><span>KiB</span></div>
+            <p id="target-note" class="field-note">优先尝试无损，必要时降低画质。</p>
+          </div>
+          <p id="gif-note" class="field-note" data-i18n="gifNote" hidden>GIF 每帧最多 256 色，半透明会转为全透明或不透明。</p>
+          <label class="field-label" for="destination"><span data-i18n="saveTo">保存位置</span></label>
+          <button class="folder-button" id="destination" type="button">
+            <svg aria-hidden="true"><use href="#folder"/></svg><span id="destination-label">原文件所在文件夹</span>
+          </button>
+          <div class="destination-actions">
+            <button id="reset-destination" class="text-button" type="button" hidden><span data-i18n="resetDestination">恢复默认位置</span></button>
+            <button id="open-destination" class="text-button" type="button" disabled><span data-i18n="openFolder">打开文件夹</span></button>
+          </div>
+        </form>
+      </div>
+      <div class="inspector-footer">
+        <p id="batch-status" class="batch-status" role="status" hidden></p>
+        <progress id="batch-progress" class="batch-progress" max="1" value="0" aria-label="批次进度" data-i18n-aria-label="batchProgress" hidden></progress>
+        <button id="run" class="button primary" type="submit" form="settings" disabled><span id="run-label">导出 WebP</span><svg aria-hidden="true"><use href="#arrow"/></svg></button>
+      </div>
+    </aside>
+  </main>
+  <dialog id="frame-editor" class="frame-editor" aria-labelledby="frame-editor-heading">
+    <div class="frame-editor-body">
+      <header class="frame-editor-header">
+        <h2 id="frame-editor-heading" data-i18n="editFrames">编辑帧</h2>
+        <p id="frame-editor-total"></p>
+      </header>
+      <div class="frame-editor-stage checker">
+        <canvas id="frame-stage" aria-label="当前帧预览" data-i18n-aria-label="frameStage"></canvas>
+      </div>
+      <div id="frame-strip" class="frame-strip" role="group" aria-label="动图帧" data-i18n-aria-label="frameStrip"></div>
+      <div class="frame-tools">
+        <div class="frame-tools-group">
+          <button id="frame-insert" class="button secondary" type="button" data-i18n="frameInsert">插入</button>
+          <button id="frame-replace" class="button secondary" type="button" data-i18n="frameReplace">替换</button>
+          <button id="frame-delete" class="button secondary" type="button" data-i18n="frameDelete">删除</button>
+          <button id="frame-left" class="icon-button" type="button" aria-label="前移一帧" data-i18n-aria-label="frameEarlier" data-i18n-title="frameEarlier"><svg aria-hidden="true"><use href="#prev"/></svg></button>
+          <button id="frame-right" class="icon-button" type="button" aria-label="后移一帧" data-i18n-aria-label="frameLater" data-i18n-title="frameLater"><svg aria-hidden="true"><use href="#next"/></svg></button>
+        </div>
+        <label class="frame-delay-field">
+          <span data-i18n="frameDelay">单帧停留时间</span>
+          <span class="input-unit"><input id="frame-delay" type="number" min="0" max="16777215" step="1" value="100"><span>ms</span></span>
+        </label>
+      </div>
+      <div class="frame-timing">
+        <label for="frame-fps" data-i18n="frameUniform">统一帧率</label>
+        <select id="frame-fps">
+          <option value="5">5 FPS</option><option value="8">8 FPS</option><option value="10">10 FPS</option>
+          <option value="12" selected>12 FPS</option><option value="15">15 FPS</option>
+          <option value="20">20 FPS</option><option value="24">24 FPS</option><option value="30">30 FPS</option>
+        </select>
+        <button id="frame-set-fps" class="button secondary" type="button" data-i18n="frameSetFps">应用到所有帧</button>
+      </div>
+      <p id="frame-editor-budget" class="frame-editor-budget" role="status"></p>
+      <p id="frame-editor-error" class="frame-editor-error" role="status" hidden></p>
+      <footer class="frame-editor-footer">
+        <button id="frame-cancel" class="button secondary" type="button" data-i18n="trimCancel">取消</button>
+        <button id="frame-apply" class="button primary" type="button" data-i18n="frameApply">应用编辑</button>
+      </footer>
+    </div>
+  </dialog>
+  <dialog id="trim-editor" class="trim-editor" aria-labelledby="trim-editor-heading">
+    <form id="trim-editor-form">
+      <header class="trim-editor-header">
+        <h2 id="trim-editor-heading" data-i18n="trimEdit">剪切片段</h2>
+        <p id="trim-file-name"></p>
+      </header>
+      <div class="trim-editor-stage checker">
+        <canvas id="trim-preview" aria-label="源视频预览" data-i18n-aria-label="trimSourcePreview" hidden></canvas>
+        <p id="trim-preview-state" class="stage-message" role="status" hidden></p>
+      </div>
+      <div class="trim-transport">
+        <button id="trim-previous" class="icon-button" type="button" data-i18n-aria-label="prevFrame" data-i18n-title="prevFrame"><svg aria-hidden="true"><use href="#prev"/></svg></button>
+        <button id="trim-play" class="icon-button play" type="button" data-i18n-aria-label="play"><svg aria-hidden="true"><use id="trim-play-symbol" href="#play-icon"/></svg></button>
+        <button id="trim-next" class="icon-button" type="button" data-i18n-aria-label="nextFrame" data-i18n-title="nextFrame"><svg aria-hidden="true"><use href="#next"/></svg></button>
+        <span id="trim-play-position" class="trim-clock"></span>
+        <input id="trim-playhead" type="range" min="0" step="1" aria-label="源视频播放位置" data-i18n-aria-label="trimSourcePosition">
+        <span id="trim-play-duration" class="trim-clock"></span>
+      </div>
+      <section class="trim-panel" aria-labelledby="trim-range-heading">
+        <div class="trim-panel-header">
+          <h3 id="trim-range-heading" data-i18n="trimKeepRange">保留范围</h3>
+          <span id="trim-original-duration"></span>
+          <div class="clip-zoom" role="group" data-i18n-aria-label="zoomControls">
+            <button id="trim-zoom-out" type="button" data-i18n-aria-label="zoomOut" data-i18n-title="zoomOut"><svg aria-hidden="true"><use href="#zoom-out"/></svg></button>
+            <button id="trim-zoom-in" type="button" data-i18n-aria-label="zoomIn" data-i18n-title="zoomIn"><svg aria-hidden="true"><use href="#zoom-in"/></svg></button>
+            <button id="trim-zoom-full" type="button" data-i18n-title="showFullClip" data-i18n="fullLength">全长</button>
+          </div>
+        </div>
+        <div class="trim-ruler">
+          <div id="trim-track" class="trim-track">
+            <div id="trim-filmstrip" aria-hidden="true"></div>
+            <button id="trim-selection" class="trim-selection" type="button" role="slider" data-i18n-aria-label="moveClip" data-i18n-title="moveClipHint"></button>
+            <button id="trim-start" class="trim-grip start" type="button" role="slider" data-i18n-aria-label="clipStart" data-i18n-title="dragStart"></button>
+            <button id="trim-end" class="trim-grip end" type="button" role="slider" data-i18n-aria-label="clipEnd" data-i18n-title="dragEnd"></button>
+          </div>
+          <div id="trim-ticks" class="trim-ticks trim-clock" aria-hidden="true"><span></span><span></span><span></span><span></span><span></span></div>
+          <input id="trim-pan" class="clip-pan" type="range" min="0" step="1" data-i18n-aria-label="scrollTimeline" data-i18n-title="scrollTimeline" hidden>
+        </div>
+        <div class="trim-fields">
+          <div class="trim-field">
+            <label for="trim-start-time" data-i18n="trimStart">起始</label>
+            <button id="trim-start-back" type="button" data-i18n-aria-label="trimBackFive" data-i18n-title="trimBackFive">−5</button>
+            <input id="trim-start-time" class="trim-clock" type="text" placeholder="00:00:00.000" spellcheck="false" autocomplete="off">
+            <button id="trim-start-forward" type="button" data-i18n-aria-label="trimForwardFive" data-i18n-title="trimForwardFive">+5</button>
+          </div>
+          <div class="trim-field">
+            <label for="trim-end-time" data-i18n="trimEnd">结束</label>
+            <button id="trim-end-back" type="button" data-i18n-aria-label="trimBackFive" data-i18n-title="trimBackFive">−5</button>
+            <input id="trim-end-time" class="trim-clock" type="text" placeholder="00:00:00.000" spellcheck="false" autocomplete="off">
+            <button id="trim-end-forward" type="button" data-i18n-aria-label="trimForwardFive" data-i18n-title="trimForwardFive">+5</button>
+          </div>
+          <div class="trim-kept">
+            <span data-i18n="trimKeptDuration">保留时长</span>
+            <output id="trim-duration" class="trim-clock"></output>
+          </div>
+        </div>
+        <div class="trim-quick">
+          <div class="trim-presets" role="group" data-i18n-aria-label="trimFromPlayhead">
+            <span data-i18n="trimFromPlayhead">从当前帧</span>
+            <button type="button" data-trim-ms="10000" data-i18n="trimPreset10">10 秒</button>
+            <button type="button" data-trim-ms="12000" data-i18n="trimPreset12">12 秒</button>
+            <button type="button" data-trim-ms="20000" data-i18n="trimPreset20">20 秒</button>
+          </div>
+          <p id="trim-limit" class="trim-limit"></p>
+        </div>
+        <p id="trim-preset-note" class="trim-limit" role="status" hidden></p>
+        <p id="trim-error" class="trim-error" role="status" hidden></p>
+      </section>
+      <footer class="trim-actions">
+        <button id="trim-cancel" class="button secondary" type="button" data-i18n="trimCancel">取消</button>
+        <button id="trim-confirm" class="button primary" type="submit" data-i18n="trimConfirm">确认剪切</button>
+      </footer>
+    </form>
+  </dialog>
+  <dialog id="update-dialog" class="update-dialog" aria-labelledby="update-heading">
+    <h2 id="update-heading" data-i18n="checkUpdates">检查更新</h2>
+    <p id="update-version" class="update-version" hidden></p>
+    <p id="update-state" class="update-note" role="status"></p>
+    <p id="update-error" class="update-error" role="status"></p>
+    <form method="dialog" class="dialog-actions">
+      <button id="open-update-page" class="button secondary" type="button" hidden>
+        <span data-i18n="viewRelease">查看发布页</span><svg aria-hidden="true"><use href="#arrow"/></svg>
+      </button>
+      <button class="button primary" type="submit" data-i18n="done" autofocus>完成</button>
+    </form>
+  </dialog>
+  <dialog id="dependency-dialog" class="update-dialog dependency-dialog" aria-labelledby="dependency-heading">
+    <h2 id="dependency-heading" data-i18n="dependencyCheck">视频依赖</h2>
+    <p class="update-note" data-i18n="dependencyIntro">视频转换需要本机的 FFmpeg 和 ffprobe。图片转换可独立使用。</p>
+    <div class="dependency-report" id="dependency-report">
+      <p id="dependency-state" role="status"></p>
+      <code id="dependency-detail" hidden></code>
+    </div>
+    <p id="dependency-brew-hint" class="update-note" data-i18n="dependencyNoBrew" hidden></p>
+    <p id="dependency-manual" class="update-note" hidden><span data-i18n="dependencyManual">终端安装命令</span> <code>brew install ffmpeg</code><span id="dependency-repair" hidden> · <code>brew reinstall ffmpeg</code></span></p>
+    <p id="dependency-error" class="update-error dependency-error" role="status" hidden></p>
+    <form method="dialog" class="dialog-actions">
+      <button id="dependency-recheck" class="button secondary" type="button" data-i18n="dependencyRecheck">重新检查</button>
+      <button id="dependency-homebrew" class="button secondary" type="button" data-i18n="dependencyHomebrew" hidden>Homebrew 官网</button>
+      <button id="dependency-install" class="button primary" type="button" data-i18n="dependencyInstall" hidden>安装或修复</button>
+      <button class="button secondary" type="submit" data-i18n="done" autofocus>完成</button>
+    </form>
+  </dialog>
+</body>
+</html>

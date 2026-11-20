@@ -1,0 +1,22 @@
+[package]
+name = "any2webp"
+version = "0.2.28"
+edition = "2021"
+description = "Local WebP and GIF conversion for macOS"
+repository = "https://github.com/ixiehao/Any2WebP"
+license = "MIT"
+publish = false
+
+[build-dependencies]
+tauri-build = { version = "2", features = [] }
+
+[dependencies]
+tauri = { version = "2", features = [] }
+tauri-plugin-dialog = "2"
+serde = { version = "1", features = ["derive"] }
+serde_json = "1"
+tempfile = "3"
+core-foundation = "0.10"
+core-foundation-sys = "0.8"
+libc = "0.2"
+time = { version = "0.3", features = ["parsing"] }

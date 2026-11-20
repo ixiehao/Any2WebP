@@ -1,0 +1,40 @@
+name: Verify
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: Build and test on Apple Silicon
+    runs-on: macos-26
+    timeout-minutes: 25
+    env:
+      RUSTUP_TOOLCHAIN: '1.100.0'
+    steps:
+      - name: Check out source
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+      - name: Install build tools
+        env:
+          HOMEBREW_NO_AUTO_UPDATE: '1'
+        run: |
+          brew install webp giflib ffmpeg
+          rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal
+      - name: Run media, UI module, and Rust regressions
+        run: ./Scripts/verify.sh
+      - name: Build and verify a signed local app
+        run: |
+          export ANY2WEBP_DIST="$RUNNER_TEMP/any2webp"
+          ./Scripts/build-app.sh
+          app="$ANY2WEBP_DIST/Any2WebP.app"
+          codesign --verify --deep --strict "$app"
+          test "$(lipo -archs "$app/Contents/MacOS/any2webp")" = arm64
+          test "$(lipo -archs "$app/Contents/MacOS/any2webp-codec")" = arm64
+          "$app/Contents/MacOS/any2webp-codec" inspect engine/samples/planet.gif

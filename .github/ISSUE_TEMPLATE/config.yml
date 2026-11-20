@@ -1,0 +1,5 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Private security report
+    url: https://github.com/ixiehao/Any2WebP/security/advisories/new
+    about: Report a potential vulnerability privately.

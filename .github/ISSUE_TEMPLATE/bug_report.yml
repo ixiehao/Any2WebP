@@ -1,0 +1,30 @@
+name: Bug report
+description: Report a reproducible problem with Any2WebP.
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Keep personal files and security-sensitive details out of this public issue.
+        Use [private vulnerability reporting](https://github.com/ixiehao/Any2WebP/security/advisories/new) for security issues.
+  - type: input
+    id: environment
+    attributes:
+      label: Environment
+      description: Include the app version, macOS version, and Mac model. For video, include FFmpeg and ffprobe versions from Help → Video Dependencies.
+      placeholder: Any2WebP 0.2.21, macOS 26, Apple Silicon
+    validations:
+      required: true
+  - type: textarea
+    id: reproduce
+    attributes:
+      label: Steps to reproduce
+      description: Include the input format, export format, and relevant settings. Attach a shareable sample if available.
+    validations:
+      required: true
+  - type: textarea
+    id: result
+    attributes:
+      label: Expected and actual result
+      description: Include the exact error text if available.
+    validations:
+      required: true
