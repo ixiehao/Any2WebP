@@ -46,7 +46,7 @@ Google 的测试中，无损 WebP 比 PNG 小约 26%，有损 WebP 在相近 SSI
 
 ## 安装与格式支持
 
-- 需要 **Apple Silicon Mac 和 macOS 26.0 或更新版本**。打开 DMG，将 Any2WebP 拖入「应用程序」。预览版的签名状态见发布说明。[GitHub Releases](https://github.com/ixiehao/Any2WebP/releases)
+- 需要 **Apple Silicon Mac 和 macOS 26.0 或更新版本**。打开 DMG，将 Any2WebP 拖入「应用程序」。安装包的签名状态见发布说明。[GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
 - 图片转换可直接使用。处理视频需要 FFmpeg 和 ffprobe，在 macOS 菜单栏选「帮助 → 视频依赖」即可检查。已有 Homebrew 时可按需安装或修复。
 - 常见输入包括 JPG、PNG、WebP、GIF、APNG、HEIC/HEIF、AVIF、TIFF、BMP、ICO、PSD、JPEG 2000、JPEG XL、MP4、MOV 和 WebM。导出支持 WebP 和 GIF。
 - 界面支持简体中文、英语和日语，默认跟随系统，可在 macOS 菜单栏的「语言」菜单切换。

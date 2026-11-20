@@ -8,9 +8,8 @@ const root = resolve(here, "..");
 const output = resolve(process.argv[2] || join(root, "dist/website"));
 const site = "https://ixiehao.github.io/Any2WebP/";
 const repo = "https://github.com/ixiehao/Any2WebP";
-const release = "v0.2.28";
 const asset = "Any2WebP-0.2.28-arm64-preview.dmg";
-const dmg = repo + "/releases/download/" + release + "/" + asset;
+const dmg = repo + "/releases/latest/download/" + asset;
 const translations = Object.entries(locales);
 const versionedStyles = "style.css?v=1";
 const iconSource = await readFile(join(root, "app/index.html"), "utf8");
@@ -99,7 +98,7 @@ function page(key, t) {
     '  </div></section>',
     '  <section class="container section"><div class="install"><div><h2>' + escape(t.installHeading) + '</h2>',
     '    <p>' + escape(t.installIntro) + '</p><p class="requirements">' + escape(t.previewNote) + '</p></div>',
-    '    <div class="install-actions">' + cta + '<div class="downloads"><a href="' + repo + '/releases">' + escape(t.release) +
+    '    <div class="install-actions">' + cta + '<div class="downloads"><a href="' + repo + '/releases/latest">' + escape(t.release) +
     '</a><a href="' + dmg + '.sha256">' + escape(t.checksum) + '</a></div></div>',
     '  </div></section>',
     '</main>',
