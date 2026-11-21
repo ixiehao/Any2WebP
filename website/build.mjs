@@ -17,7 +17,7 @@ const guideEntries = Object.entries(guides);
 const pageUrl = (t, leaf = "") => site + t.route + leaf;
 const pathPrefix = (t, leaf = "") => "../".repeat(Number(Boolean(t.route)) + Number(Boolean(leaf))) || "./";
 const workspaceImage = key => "assets/workspace-" + key + ".png?v=hummingbird-kb";
-const versionedStyles = "style.css?v=5";
+const versionedStyles = "style.css?v=6";
 const demoFiles = {
   gif: "docs/assets/hummingbird-loop.gif",
   webp: "docs/assets/hummingbird-loop.webp",
@@ -118,12 +118,15 @@ function downloadButton(t) {
 
 function onlineConverter(t) {
   const messages = escape(JSON.stringify(t.online));
-  return '      <section class="online-converter" id="online" aria-labelledby="online-title" data-messages="' + messages + '">' +
-    '<h2 id="online-title">' + escape(t.online.title) + '</h2><p>' + escape(t.online.help) + '</p>' +
-    '<div class="online-actions"><button class="button online-pick" type="button" disabled>' + escape(t.online.pick) + '</button>' +
-    '<input type="file" accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif" hidden>' +
+  return '  <section class="container section online-converter" id="online" aria-labelledby="online-title" data-messages="' + messages + '">' +
+    '<div class="online-panel"><div class="online-intro"><h2 id="online-title">' + escape(t.online.title) + '</h2>' +
+    '<p id="online-scope">' + escape(t.online.scope) + '</p><p>' + escape(t.online.fullFeatures) + '</p>' +
+    '<a class="text-action" href="' + dmg + '">' + escape(t.download) + '</a></div>' +
+    '<div class="online-tools"><p id="online-help">' + escape(t.online.help) + '</p>' +
+    '<div class="online-actions"><button class="button online-pick" type="button" aria-describedby="online-scope online-help" disabled>' +
+    escape(t.online.pick) + '</button><input type="file" accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif" hidden>' +
     '<a class="online-download" hidden download>' + escape(t.online.download) + '</a></div>' +
-    '<p class="online-status" role="status"></p><noscript><p>' + escape(t.online.unavailable) + '</p></noscript></section>';
+    '<p class="online-status" role="status"></p><noscript><p>' + escape(t.online.unavailable) + '</p></noscript></div></div></section>';
 }
 
 function page(key, t) {
@@ -165,14 +168,14 @@ function page(key, t) {
     '  <section class="hero" aria-labelledby="title"><div class="hero-inner container">',
     '    <div class="hero-copy"><h1 id="title">' + escape(t.heroLead) + ' <span>' + escape(t.heroAccent) + '</span></h1>',
     '      <p>' + escape(t.heroDescription) + '</p>',
-    onlineConverter(t),
-    '      <div class="actions">' + cta + '<a class="source" href="' + repo + '">' + escape(t.source) + '</a></div>',
+    '      <div class="actions">' + cta + '<a class="text-action" href="#online">' + escape(t.online.shortTitle) + '</a></div>',
     '      <div class="requirements">' + escape(t.requirement) + '</div>',
     '    </div>',
     '    <figure class="hero-image"><img src="' + prefix + screenshot + '" width="2480" height="1550" fetchpriority="high" alt="' + escape(t.screenshotAlt) +
     '"><figcaption>' + escape(t.screenshotCaption) + '</figcaption></figure>',
     '  </div></section>',
     '  <section class="container section" id="features"><h2>' + escape(t.featureHeading) + '</h2><div class="feature-grid">' + featureCards + '</div></section>',
+    onlineConverter(t),
     '  <section class="container section formats" id="formats"><h2>' + escape(t.formatHeading) + '</h2><div class="format-grid">',
     '    <article class="format-card"><h3>' + escape(t.moving) + '</h3><p>' + escape(t.formatDescription) + '</p>',
     '      <div class="sample-pair" data-frames="' + prefix + 'assets/hummingbird-frames.webp">' + sample("GIF", "gif") + sample("WebP", "webp") + '</div>',

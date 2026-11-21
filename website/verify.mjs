@@ -51,14 +51,21 @@ for (const [lang, route] of languages) {
       assert.ok(html.includes('href="../#formats"'));
       assert.doesNotMatch(html, /<script\b/);
     } else {
-      assert.match(html, /<section class="online-converter" id="online"/);
+      const hero = html.match(/<section class="hero"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+      const online = html.match(/<section class="container section online-converter" id="online"[^>]*>([\s\S]*?)<\/section>/)?.[1];
+      assert.ok(hero?.includes('href="#online"'));
+      assert.ok(!hero.includes('type="file"'));
+      assert.ok(html.indexOf('id="features"') < html.indexOf('id="online"'));
+      assert.match(online ?? "", /<p id="online-scope">[^<]+<\/p>/);
+      assert.match(online, /aria-describedby="online-scope online-help"/);
       assert.match(html, /<script type="module" src="[^"]*online\.js\?v=1">/);
       const data = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
       assert.equal(data["@type"], "SoftwareApplication");
       assert.equal(data.url, url);
       assert.equal(data.inLanguage, lang);
       assert.equal(data.offers.price, "0");
-      assert.ok(html.includes('href="' + data.downloadUrl + '"'));
+      assert.ok(hero.includes('<a class="button" href="' + data.downloadUrl + '"'));
+      assert.ok(online.includes('href="' + data.downloadUrl + '"'));
       const hrefs = [...html.matchAll(/<h3><a href="([^"]+)"/g)].map(match => new URL(match[1], url).href);
       for (const guide of pages.slice(1)) assert.ok(hrefs.includes(url + guide));
     }
