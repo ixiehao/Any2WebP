@@ -1,8 +1,8 @@
 import { errorMessage, message, messageText, t } from "./i18n.js";
 import { readPreview } from "./timeline.js";
+import { frameBudgetBytes, sizeText } from "./byte-size.js";
 
 const maxFrames = 600;
-const maxBytes = 512 * 1024 * 1024;
 const maxDelay = 0xffffff;
 const basename = path => path.split("/").at(-1);
 
@@ -17,7 +17,7 @@ export function delayAt(index, fps) {
 
 export function frameBudget(width, height, count) {
   const bytes = width * height * 4 * count;
-  return { bytes, fits: width > 0 && height > 0 && count >= 2 && count <= maxFrames && bytes <= maxBytes };
+  return { bytes, fits: width > 0 && height > 0 && count >= 2 && count <= maxFrames && bytes <= frameBudgetBytes };
 }
 
 export function sameFrameEdit(left, right) {
@@ -123,7 +123,7 @@ export function bindFrameEditor({ invoke, pickImages, commit }) {
     const seconds = state.frames.reduce((total, frame) => total + frame.delay, 0) / 1000;
     el("frame-editor-total").textContent = t("frameTotal", { count, seconds: Number(seconds.toFixed(3)) });
     el("frame-editor-budget").textContent = state.width ? t("frameBudget", {
-      width: state.width, height: state.height, memory: (bytes / (1024 * 1024)).toFixed(1),
+      width: state.width, height: state.height, memory: sizeText(bytes),
     }) : t("loadingImage");
     el("frame-editor-budget").classList.toggle("warning", Boolean(state.width) && !fits);
     const broken = state.frames.find(frame => frame.error);

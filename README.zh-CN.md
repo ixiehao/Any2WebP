@@ -36,11 +36,11 @@
 
 Any2WebP 将 **「青羽蜂鸟」** GIF 无损导出为 WebP，保留 60 帧、透明背景和 3 秒无限循环。
 
-| [GIF · 1.03 MiB](docs/assets/hummingbird-loop.gif) | [WebP · 731.3 KiB](docs/assets/hummingbird-loop.webp) |
+| [GIF · 1.08 MB](docs/assets/hummingbird-loop.gif) | [WebP · 748.9 KB](docs/assets/hummingbird-loop.webp) |
 | --- | --- |
 | <img src="docs/assets/hummingbird-loop.gif" width="230" alt="青羽蜂鸟与珊瑚橙花，GIF 版"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="青羽蜂鸟与珊瑚橙花，WebP 版"> |
 
-本例的 WebP 成品比 GIF 小 **326.7 KiB（30.9%）**。[在官网播放对比](https://ixiehao.github.io/Any2WebP/zh/#formats) · [Google WebP 动图说明](https://developers.google.com/speed/webp/faq)
+本例的 WebP 成品比 GIF 小 **334.5 KB（30.9%）**。[在官网播放对比](https://ixiehao.github.io/Any2WebP/zh/#formats) · [Google WebP 动图说明](https://developers.google.com/speed/webp/faq)
 
 ## 静图怎么选：WebP、PNG 和 JPG
 
@@ -66,8 +66,8 @@ Google 的测试中，无损 WebP 比 PNG 小约 26%，有损 WebP 在相近 SSI
 - 展开「画质调整」可分别调节暗部、降噪和细节。「应用到全部素材」复制三项强度，「归零」恢复默认。
 - WebP 目标体积模式先尝试无损，再尝试有损。GIF 按需减少调色板颜色。无法达到指定体积时，保留尝试中最小的结果。画质未调整的已有 WebP 若重压后更大，应用会保留原文件。
 - GIF 以 10 毫秒为帧延时单位，只支持二值透明。WebP 有限播放次数上限为 65,535 次。0 ms 帧延时按原值保存，预览提供 100 ms 以便检查。截断的 GIF 可保留完整解码的帧。
-- 视频默认取开头最多 3 秒，以 12 FPS 缩放到长边不超过 640 px。可在剪切窗口按输出参数查看最长时长。默认输出无声、无限循环，帧率可选 5–30 FPS，长边最高 1920 px。片段最多 600 帧，未压缩 RGBA 帧累计最多 512 MiB。
-- 静态图统一使用 8 位 sRGB。图像文件和导出文件的体积上限为 64 MiB。重编码 WebP 时保留 ICC、EXIF 和 XMP。
+- 视频默认取开头最多 3 秒，以 12 FPS 缩放到长边不超过 640 px。可在剪切窗口按输出参数查看最长时长。默认输出无声、无限循环，帧率可选 5–30 FPS，长边最高 1920 px。片段最多 600 帧，未压缩 RGBA 帧累计最多 约 536.87 MB。
+- 静态图统一使用 8 位 sRGB。图像文件和导出文件的体积上限为 约 67.11 MB。重编码 WebP 时保留 ICC、EXIF 和 XMP。
 - 同名输出自动编号，重压已有 WebP 默认加 `-compressed`。点「打开文件夹」查看保存位置，或点「访达」定位选中的成品。队列在退出后清空。
 
 </details>

@@ -2,6 +2,7 @@ import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { locales } from "./content.mjs";
+import { bytesPerKB, sizeText } from "../app/byte-size.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
 const root = resolve(here, "..");
@@ -11,7 +12,7 @@ const repo = "https://github.com/ixiehao/Any2WebP";
 const asset = "Any2WebP-0.2.30-arm64.dmg";
 const dmg = repo + "/releases/latest/download/" + asset;
 const translations = Object.entries(locales);
-const versionedStyles = "style.css?v=2";
+const versionedStyles = "style.css?v=3";
 const demoFiles = {
   gif: "docs/assets/hummingbird-loop.gif",
   webp: "docs/assets/hummingbird-loop.webp",
@@ -52,7 +53,7 @@ function languages(t, prefix) {
 
 function page(key, t) {
   const prefix = t.route ? "../" : "./";
-  const screenshot = "assets/workspace-" + key + ".png?v=hummingbird";
+  const screenshot = "assets/workspace-" + key + ".png?v=hummingbird-kb";
   const alternates = translations.map(([, language]) =>
     '  <link rel="alternate" hreflang="' + language.lang + '" href="' + site + language.route + '">');
   const social = [
@@ -73,21 +74,16 @@ function page(key, t) {
     style: "percent", minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero",
   });
   const delta = demoSizes.webp - demoSizes.gif;
-  const difference = t.demoDifference(signedDecimal.format(delta / 1024) + " KiB", signedPercent.format(delta / demoSizes.gif));
+  const difference = t.demoDifference(signedDecimal.format(delta / bytesPerKB) + " KB", signedPercent.format(delta / demoSizes.gif));
   const sample = (label, ext) => {
     const assetPath = prefix + "assets/hummingbird-loop." + ext;
     const bytes = demoSizes[ext];
-    const isMiB = bytes >= 1024 * 1024;
-    const fractionDigits = isMiB ? 2 : 1;
-    const size = new Intl.NumberFormat(t.lang, {
-      minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits,
-    }).format(bytes / (isMiB ? 1024 * 1024 : 1024)) + (isMiB ? " MiB" : " KiB");
-    return '<figure><div class="demo-image"><img src="' + prefix +
-      'assets/hummingbird-poster.png" data-motion="' + assetPath +
-      '" width="480" height="336" loading="lazy" alt="' + escape(t.demoAlt) + '"></div><figcaption><a href="' +
+    return '<figure><div class="demo-image" role="img" aria-label="' + escape(t.demoAlt) + '"><img src="' + prefix +
+      'assets/hummingbird-poster.png" width="480" height="336" loading="lazy" alt="">' +
+      '<canvas width="480" height="336" aria-hidden="true" hidden></canvas></div><figcaption><a href="' +
       assetPath + '">' + label + '</a><span title="' +
       escape(new Intl.NumberFormat(t.lang).format(bytes) + " " + t.demoByteUnit) + '">' +
-      escape(size) + '</span></figcaption></figure>';
+      escape(sizeText(bytes)) + '</span></figcaption></figure>';
   };
   const stillRows = t.stillRows.map(([label, type, use]) =>
     '<div class="still-row"><dt>' + label + '</dt><dd><b>' + escape(type) + '</b><span>' + escape(use) + '</span></dd></div>').join("\n");
@@ -115,11 +111,12 @@ function page(key, t) {
     '  <section class="container section" id="features"><h2>' + escape(t.featureHeading) + '</h2><div class="feature-grid">' + featureCards + '</div></section>',
     '  <section class="container section formats" id="formats"><h2>' + escape(t.formatHeading) + '</h2><div class="format-grid">',
     '    <article class="format-card"><h3>' + escape(t.moving) + '</h3><p>' + escape(t.formatDescription) + '</p>',
-    '      <div class="sample-pair">' + sample("GIF", "gif") + sample("WebP", "webp") + '</div>',
+    '      <div class="sample-pair" data-frames="' + prefix + 'assets/hummingbird-frames.webp">' + sample("GIF", "gif") + sample("WebP", "webp") + '</div>',
     '      <p class="demo-note"><strong>' + escape(difference) + '</strong> ' + escape(t.demoNote) + '</p>',
-    '      <button class="demo-play" type="button" aria-pressed="false" data-play="' + escape(t.demoPlay) +
-    '" data-stop="' + escape(t.demoStop) + '" data-loading="' + escape(t.demoLoading) + '" data-error="' +
-    escape(t.demoError) + '" hidden>' + escape(t.demoPlay) + '</button><p class="demo-status" role="status"></p></article>',
+    '      <button class="demo-play" type="button" data-play="' + escape(t.demoPlay) +
+    '" data-pause="' + escape(t.demoPause) + '" data-resume="' + escape(t.demoResume) +
+    '" data-loading="' + escape(t.demoLoading) + '" data-error="' + escape(t.demoError) +
+    '" hidden>' + escape(t.demoPlay) + '</button><p class="demo-status" role="status"></p></article>',
     '    <article class="format-card"><h3>' + escape(t.still) + '</h3><dl>' + stillRows + '</dl><a class="small-link" href="https://developers.google.com/speed/webp">' +
     escape(t.formatSource) + '</a></article>',
     '  </div></section>',
@@ -131,7 +128,7 @@ function page(key, t) {
     '</main>',
     '<footer class="container footer"><span>Any2WebP · ' + escape(t.free) + '</span><div><a href="' + repo + '">GitHub</a><a href="' +
     repo + '/issues/new/choose">' + escape(t.support) + '</a></div></footer>',
-    '<script type="module" src="' + prefix + 'demo.js?v=2"></script>',
+    '<script type="module" src="' + prefix + 'demo.js?v=3"></script>',
     "</body>",
     "</html>",
   ].join("\n");
@@ -151,6 +148,7 @@ const assets = {
   "demo.js": "website/demo.js",
   "assets/icon.png": "app/icon.png",
   "assets/hummingbird-poster.png": "website/assets/hummingbird-poster.png",
+  "assets/hummingbird-frames.webp": "website/assets/hummingbird-frames.webp",
   "assets/hummingbird-loop.gif": demoFiles.gif,
   "assets/hummingbird-loop.webp": demoFiles.webp,
   "assets/workspace-en.png": "docs/assets/any2webp-en.png",
