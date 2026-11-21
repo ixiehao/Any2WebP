@@ -3,6 +3,7 @@ import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { locales } from "./content.mjs";
 import { guides } from "./guides.mjs";
+import { guideScreens, guideScreenshotPath, guideScreenshotSize } from "./guide-screens.mjs";
 import { bytesPerKB, sizeText } from "../app/byte-size.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -17,7 +18,7 @@ const guideEntries = Object.entries(guides);
 const pageUrl = (t, leaf = "") => site + t.route + leaf;
 const pathPrefix = (t, leaf = "") => "../".repeat(Number(Boolean(t.route)) + Number(Boolean(leaf))) || "./";
 const workspaceImage = key => "assets/workspace-" + key + ".png?v=hummingbird-kb";
-const versionedStyles = "style.css?v=6";
+const versionedStyles = "style.css?v=7";
 const demoFiles = {
   gif: "docs/assets/hummingbird-loop.gif",
   webp: "docs/assets/hummingbird-loop.webp",
@@ -208,6 +209,14 @@ function guidePage(key, t, slug, guide) {
   const steps = guide.steps.map(step => '<li>' + escape(step) + '</li>').join("\n");
   const relatedSlug = guides[slug].related;
   const related = guides[relatedSlug][key];
+  const { width, height } = guideScreenshotSize;
+  const figures = guideScreens[slug].map(scene => {
+    const [alt, caption] = scene[key];
+    const path = prefix + guideScreenshotPath(scene.id, key);
+    return '    <figure class="guide-shot"><a href="' + path + '"><img src="' + path +
+      '" width="' + width + '" height="' + height + '" loading="lazy" decoding="async" alt="' + escape(alt) +
+      '"></a><figcaption>' + escape(caption) + '</figcaption></figure>';
+  });
   return publicHead(key, t, { ...guide, title: guide.title + " | Any2WebP" }, leaf) + "\n" + [
     "<body>",
     '<a class="skip" href="#main">' + escape(t.skip) + '</a>',
@@ -219,6 +228,7 @@ function guidePage(key, t, slug, guide) {
     '    <div class="actions">' + downloadButton(t) + '</div>',
     '    <p class="requirements">' + escape(t.requirement) + '</p>',
     '    <h2>' + escape(t.stepsHeading) + '</h2><ol>' + steps + '</ol>',
+    ...figures,
     '    <h2>' + escape(guide.detailHeading) + '</h2><p>' + escape(guide.detail) + '</p>',
     '    <ul class="guide-related"><li><a href="../#formats">' + escape(t.comparison) + '</a></li>' +
     '<li><a href="../' + relatedSlug + '/">' + escape(related.title) + '</a></li></ul>',
@@ -258,7 +268,15 @@ const assets = {
   "THIRD-PARTY-NOTICES.txt": "docs/THIRD-PARTY-NOTICES.txt",
   "LICENSE": "LICENSE",
 };
-await mkdir(join(output, "assets"), { recursive: true });
+for (const scenes of Object.values(guideScreens)) {
+  for (const scene of scenes) {
+    for (const [key] of translations) {
+      const path = guideScreenshotPath(scene.id, key);
+      assets[path] = "website/" + path;
+    }
+  }
+}
+await mkdir(join(output, "assets/tutorials"), { recursive: true });
 await Promise.all(Object.entries(assets).map(([destination, source]) =>
   copyFile(join(root, source), join(output, destination))));
 for (const [key, t] of translations) {

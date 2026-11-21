@@ -148,6 +148,10 @@ figcaption span { white-space: nowrap; color: var(--muted); }
 .guide h2 { margin: 36px 0 12px; font-size: 1.4rem; }
 .guide ol { padding-inline-start: 1.4em; margin: 0; }
 .guide li + li { margin-top: 10px; }
+.guide-shot { margin-top: 22px; }
+.guide-shot a { display: block; border-radius: 10px; }
+.guide-shot img { width: 100%; border: 1px solid var(--line); border-radius: inherit; }
+.guide-shot figcaption { display: block; padding: 6px 0 0; color: var(--muted); font-size: .9rem; }
 .guide-related { margin: 22px 0 0; padding-inline-start: 1.4em; }
 @media (max-width: 640px) {
   .guide-links { grid-template-columns: 1fr; }
