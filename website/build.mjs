@@ -8,7 +8,7 @@ const root = resolve(here, "..");
 const output = resolve(process.argv[2] || join(root, "dist/website"));
 const site = "https://ixiehao.github.io/Any2WebP/";
 const repo = "https://github.com/ixiehao/Any2WebP";
-const asset = "Any2WebP-0.2.28-arm64-preview.dmg";
+const asset = "Any2WebP-0.2.30-arm64.dmg";
 const dmg = repo + "/releases/latest/download/" + asset;
 const translations = Object.entries(locales);
 const versionedStyles = "style.css?v=1";

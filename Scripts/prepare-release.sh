@@ -7,8 +7,12 @@ project="$PWD"
 fail() { printf '%s\n' "$*" >&2; exit 1; }
 
 mode="${1:-}"
-[[ "$mode" == "--preview" || "$mode" == "--stable" ]] && (( $# == 1 )) ||
-  fail "用法：Scripts/prepare-release.sh --preview | --stable"
+usage="用法：Scripts/prepare-release.sh --preview | --release-ad-hoc | --stable"
+(( $# == 1 )) || fail "$usage"
+case "$mode" in
+  --preview|--release-ad-hoc|--stable) ;;
+  *) fail "$usage" ;;
+esac
 [[ "$(uname -m)" == "arm64" ]] || fail "此发布流程需要 Apple Silicon Mac。"
 
 config=src-tauri/tauri.conf.json
@@ -22,23 +26,29 @@ tag="v$version"
 revision=""
 source_tree=""
 suffix="-preview"
-if [[ "$mode" == "--stable" ]]; then
+signing="ad-hoc"
+notarization="not-notarized"
+if [[ "$mode" != "--preview" ]]; then
   [[ "$(git rev-parse --show-toplevel 2>/dev/null)" == "$project" ]] ||
-    fail "正式版必须从 Any2WebP 自身的 Git 仓库构建。"
+    fail "公开版必须从 Any2WebP 自身的 Git 仓库构建。"
   origin="$(git remote get-url origin)"
   case "$origin" in
     "https://github.com/$repo"|"https://github.com/$repo.git"|"git@github.com:$repo.git") ;;
     *) fail "origin 必须指向 github.com/$repo。" ;;
   esac
   changes="$(git status --porcelain)"
-  [[ -z "$changes" ]] || fail "正式版构建前请提交所有源码改动。"
+  [[ -z "$changes" ]] || fail "公开版构建前请提交所有源码改动。"
   revision="$(git rev-parse HEAD)"
   source_tree="$(git rev-parse 'HEAD^{tree}')"
+  suffix=""
+fi
+if [[ "$mode" == "--stable" ]]; then
   identity="${ANY2WEBP_SIGN_IDENTITY:-}"
   profile="${ANY2WEBP_NOTARY_PROFILE:-}"
   [[ "$identity" == "Developer ID Application: "* && -n "$profile" ]] ||
-    fail "正式版需要 Developer ID Application 签名和已存储的公证配置。"
-  suffix=""
+    fail "公证版需要 Developer ID Application 签名和已存储的公证配置。"
+  signing="Developer ID Application"
+  notarization="Apple-notarized"
 fi
 
 releases="${ANY2WEBP_RELEASES_DIR:-$project/dist/releases}"
@@ -99,11 +109,13 @@ fi
 mkdir -p "$scratch/image" "$scratch/mounted"
 ANY2WEBP_DIST="$scratch/image" ./Scripts/build-app.sh
 app="$scratch/image/$name.app"
-if [[ "$mode" == "--stable" ]]; then
+if [[ "$mode" != "--preview" ]]; then
   after_revision="$(git rev-parse HEAD)"
   changes="$(git status --porcelain)"
   [[ "$after_revision" == "$revision" && -z "$changes" ]] ||
     fail "构建期间源码状态发生变化，请重新构建。"
+fi
+if [[ "$mode" == "--stable" ]]; then
   codesign --force --options runtime --timestamp --sign "$identity" "$app/Contents/MacOS/any2webp-codec"
   codesign --force --options runtime --timestamp --sign "$identity" "$app"
 fi
@@ -153,9 +165,9 @@ hdiutil detach "$scratch/mounted"
 mounted=false
 
 (cd "$stage" && shasum -a 256 "$artifact" > "$artifact.sha256" && shasum -a 256 -c "$artifact.sha256")
-if [[ "$mode" == "--stable" ]]; then
-  printf 'repository=https://github.com/%s\ntag=%s\ncommit=%s\ntree=%s\narchitecture=arm64\nminimum_macos=%s\n' \
-    "$repo" "$tag" "$revision" "$source_tree" "$min_version" > "$stage/$artifact.source.txt"
+if [[ "$mode" != "--preview" ]]; then
+  printf 'repository=https://github.com/%s\ntag=%s\ncommit=%s\ntree=%s\narchitecture=arm64\nminimum_macos=%s\nsigning=%s\nnotarization=%s\n' \
+    "$repo" "$tag" "$revision" "$source_tree" "$min_version" "$signing" "$notarization" > "$stage/$artifact.source.txt"
 fi
 # Darwin's exclusive rename also refuses to move the staging directory inside
 # an output directory that was created by a concurrent build.
