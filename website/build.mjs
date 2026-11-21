@@ -206,7 +206,8 @@ function guidePage(key, t, slug, guide) {
   const leaf = slug + "/";
   const prefix = pathPrefix(t, leaf);
   const steps = guide.steps.map(step => '<li>' + escape(step) + '</li>').join("\n");
-  const related = guideEntries.find(([other]) => other !== slug);
+  const relatedSlug = guides[slug].related;
+  const related = guides[relatedSlug][key];
   return publicHead(key, t, { ...guide, title: guide.title + " | Any2WebP" }, leaf) + "\n" + [
     "<body>",
     '<a class="skip" href="#main">' + escape(t.skip) + '</a>',
@@ -220,7 +221,7 @@ function guidePage(key, t, slug, guide) {
     '    <h2>' + escape(t.stepsHeading) + '</h2><ol>' + steps + '</ol>',
     '    <h2>' + escape(guide.detailHeading) + '</h2><p>' + escape(guide.detail) + '</p>',
     '    <ul class="guide-related"><li><a href="../#formats">' + escape(t.comparison) + '</a></li>' +
-    '<li><a href="../' + related[0] + '/">' + escape(related[1][key].title) + '</a></li></ul>',
+    '<li><a href="../' + relatedSlug + '/">' + escape(related.title) + '</a></li></ul>',
     '  </article>',
     '</main>',
     footer(t),

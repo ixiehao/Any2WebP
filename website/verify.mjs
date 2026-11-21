@@ -6,7 +6,13 @@ const output = resolve(process.argv[2] || "dist/website");
 const read = file => readFile(resolve(output, file), "utf8");
 const site = "https://ixiehao.github.io/Any2WebP/";
 const languages = [["en", ""], ["zh-CN", "zh/"], ["ja", "ja/"]];
-const pages = ["", "gif-to-webp/", "compress-webp/"];
+const guides = {
+  "gif-to-webp/": "compress-webp/",
+  "compress-webp/": "gif-to-webp/",
+  "video-to-webp-gif/": "images-to-webp-gif/",
+  "images-to-webp-gif/": "video-to-webp-gif/",
+};
+const pages = ["", ...Object.keys(guides)];
 const expectedUrls = languages.flatMap(([, route]) => pages.map(page => site + route + page));
 const titles = new Set();
 const descriptions = new Set();
@@ -49,6 +55,7 @@ for (const [lang, route] of languages) {
     if (page) {
       assert.equal([...html.matchAll(/<ol>[\s\S]*?<\/ol>/g)].length, 1);
       assert.ok(html.includes('href="../#formats"'));
+      assert.ok(html.includes('href="../' + guides[page] + '"'));
       assert.doesNotMatch(html, /<script\b/);
     } else {
       const hero = html.match(/<section class="hero"[^>]*>([\s\S]*?)<\/section>/)?.[1];
@@ -71,4 +78,4 @@ for (const [lang, route] of languages) {
     }
   }
 }
-console.log("Verified nine indexable pages, reciprocal language links, and non-indexed download redirects.");
+console.log("Verified " + expectedUrls.length + " indexable pages, reciprocal language links, and non-indexed download redirects.");

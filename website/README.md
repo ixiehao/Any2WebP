@@ -14,7 +14,7 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 
 ## 搜索入口
 
-首页围绕 Mac 本机批量转换、JPG／PNG／GIF 转 WebP 与视频转动图。两篇三语教程分别介绍 GIF 转无损 WebP 和按目标体积压缩 WebP，操作步骤和适用边界由 `guides.mjs` 维护。首页、教程和语言切换均用静态链接。
+首页围绕 Mac 本机批量转换、JPG／PNG／GIF 转 WebP 与视频转动图。四篇三语教程涵盖 GIF 转无损 WebP、按目标体积压缩 WebP、视频片段转动图和系列图片合成动图。操作步骤和适用边界由 `guides.mjs` 维护。首页、教程和语言切换均用静态链接。
 
 搜索页有独立标题、描述和 canonical，语言版本互相声明 `hreflang`，英文为默认。首页以 `SoftwareApplication` 描述免费应用、兼容性、截图和下载入口。Sitemap 收录首页与教程，下载跳转页标记为 `noindex`。域名根目录的 robots.txt 由 [个人主页仓库](https://github.com/ixiehao/ixiehao.github.io) 指向项目 Sitemap。构建后运行 `website/verify.mjs` 核对上述入口。
 
