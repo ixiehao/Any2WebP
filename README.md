@@ -32,7 +32,13 @@ Conversion runs locally, and WebP encoding uses the bundled libwebp. Large anima
 | File size | Lossy and lossless options, often smaller | Works well for simple graphics, but complex scenes can take more space or show banding |
 | Good for | Web animations, transparent graphics, and video clips | GIF-only platforms and older software |
 
-The included [transparent GIF](engine/samples/planet.gif) is **46.2 KiB**. Its [lossless WebP export](docs/assets/planet.webp) is **19.3 KiB**, a **58.1%** reduction. Both have 24 frames, the same delays, transparency, and three plays. The result depends on the image and settings. [Google’s animated WebP FAQ](https://developers.google.com/speed/webp/faq)
+**Teal Hummingbird** uses the same 60 frames in both formats, with a 3-second loop.
+
+| [GIF · 1,058.0 KiB](docs/assets/hummingbird-loop.gif) | [WebP · 909.4 KiB](docs/assets/hummingbird-loop.webp) |
+| --- | --- |
+| <img src="docs/assets/hummingbird-loop.gif" width="230" alt="Teal hummingbird and coral-orange flower, GIF"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="Teal hummingbird and coral-orange flower, WebP"> |
+
+The lossy WebP keeps the wings partially transparent and is **148.6 KiB (14.0%) smaller** in this example. [Play the comparison on the website](https://ixiehao.github.io/Any2WebP/#formats) · [Google’s animated WebP FAQ](https://developers.google.com/speed/webp/faq)
 
 ## Still images: WebP, PNG, or JPG
 

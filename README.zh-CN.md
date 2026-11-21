@@ -32,7 +32,13 @@
 | 体积 | 支持有损和无损，通常更省体积 | 简单图形已经够用，复杂画面可能更大或出现色阶 |
 | 适合 | 网页动图、透明贴图、视频片段 | 只收 GIF 的平台、旧软件和兼容性优先的场合 |
 
-同一段 [透明 GIF](engine/samples/planet.gif) 约 **46.2 KiB**，无损转成 [WebP](docs/assets/planet.webp) 后约 **19.3 KiB**，减少 **58.1%**。两者均为 24 帧，保留帧延时、透明度和 3 次播放。这是单个示例，实际体积取决于素材和设置。[Google WebP 动图说明](https://developers.google.com/speed/webp/faq)
+**「青羽蜂鸟」** 的两版动图均由同一组 60 帧导出，每 3 秒循环一次。
+
+| [GIF · 1,058.0 KiB](docs/assets/hummingbird-loop.gif) | [WebP · 909.4 KiB](docs/assets/hummingbird-loop.webp) |
+| --- | --- |
+| <img src="docs/assets/hummingbird-loop.gif" width="230" alt="青羽蜂鸟与珊瑚橙花，GIF 版"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="青羽蜂鸟与珊瑚橙花，WebP 版"> |
+
+本例的有损 WebP 保留了翅膀的半透明渐变，体积比 GIF 小 **148.6 KiB（14.0%）**。[在官网播放对比](https://ixiehao.github.io/Any2WebP/zh/#formats) · [Google WebP 动图说明](https://developers.google.com/speed/webp/faq)
 
 ## 静图怎么选：WebP、PNG 和 JPG
 

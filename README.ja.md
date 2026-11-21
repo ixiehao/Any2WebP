@@ -32,7 +32,13 @@
 | 容量 | 可逆・非可逆圧縮が選べ、容量を抑えやすい | 単純な図に向く。複雑な画像では容量や色の段差が目立つことがある |
 | 主な用途 | ウェブ向け、透過素材、動画の一部 | GIF のみ対応するサービスや従来のソフトウェア |
 
-[透過 GIF](engine/samples/planet.gif) の **46.2 KiB** に対し、[可逆圧縮の WebP](docs/assets/planet.webp) は **19.3 KiB** で **58.1%** 小さくなりました。この例では、24 フレーム、表示時間、透明度、3 回再生を保持しています。結果は画像や設定によって変わります。[Google の WebP FAQ](https://developers.google.com/speed/webp/faq)
+**「青緑のハチドリ」** は、どちらも同じ 60 フレームを使った 3 秒のループです。
+
+| [GIF · 1,058.0 KiB](docs/assets/hummingbird-loop.gif) | [WebP · 909.4 KiB](docs/assets/hummingbird-loop.webp) |
+| --- | --- |
+| <img src="docs/assets/hummingbird-loop.gif" width="230" alt="青緑のハチドリとコーラルオレンジの花、GIF 版"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="青緑のハチドリとコーラルオレンジの花、WebP 版"> |
+
+この例の非可逆 WebP は羽の半透明を保ち、GIF より **148.6 KiB（14.0%）** 小さくなりました。[公式サイトで比較を再生](https://ixiehao.github.io/Any2WebP/ja/#formats) · [Google の WebP FAQ](https://developers.google.com/speed/webp/faq)
 
 ## 静止画の形式を選ぶ
 
