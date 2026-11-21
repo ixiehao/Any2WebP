@@ -126,7 +126,7 @@ function onlineConverter(t) {
     '<div class="online-actions"><button class="button online-pick" type="button" aria-describedby="online-scope online-help" disabled>' +
     escape(t.online.pick) + '</button><input type="file" accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif" hidden>' +
     '<a class="online-download" hidden download>' + escape(t.online.download) + '</a></div>' +
-    '<p class="online-status" role="status"></p><noscript><p>' + escape(t.online.unavailable) + '</p></noscript></div></div></section>';
+    '<p class="online-status" role="status"></p></div></div></section>';
 }
 
 function page(key, t) {

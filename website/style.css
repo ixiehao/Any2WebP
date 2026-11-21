@@ -164,12 +164,15 @@ figcaption span { white-space: nowrap; color: var(--muted); }
 .online-intro .text-action { display: inline-block; margin-top: 12px; }
 .online-tools { padding-inline-start: clamp(20px, 3vw, 36px); border-inline-start: 1px solid var(--line); }
 .online-tools p { color: var(--muted); font-size: .93rem; }
-.online-actions { display: flex; flex-wrap: wrap; align-items: center; gap: 8px 12px; margin-top: 12px; }
-.online-pick { border: 1px solid #afc5ee; background: white; color: var(--accent); font-family: inherit; cursor: pointer; }
+.online-actions { display: grid; justify-items: start; gap: 8px; margin-top: 12px; }
+.online-pick {
+  width: 100%; min-height: 52px; border: 1px solid #afc5ee; background: white;
+  color: var(--accent); font-family: inherit; font-size: 1rem; cursor: pointer;
+}
 .online-pick:hover:not(:disabled) { background: #e8efff; color: var(--accent-hover); }
 .online-pick:disabled { opacity: .6; cursor: default; background: white; color: var(--accent); }
 .online-download { font-size: .93rem; font-weight: 650; text-underline-offset: 3px; }
-.online-status, .online-tools noscript p { margin-top: 10px; }
+.online-status { margin-top: 10px; }
 .online-status:empty { display: none; }
 @media (max-width: 640px) {
   .online-panel { grid-template-columns: minmax(0, 1fr); }
