@@ -10,5 +10,6 @@
 | [MPL-2.0.txt](MPL-2.0.txt) | [Mozilla Public License 2.0](https://www.mozilla.org/MPL/2.0/), from the locked `cssparser` package and used for `selectors` |
 | [tauri-MIT.txt](tauri-MIT.txt) | The locked `tauri` crate ships this text. Its source commit also produced the locked `tauri-plugin` crate. |
 | [libwebp-PATENTS.txt](libwebp-PATENTS.txt) | [libwebp 1.6.0 WebM patent grant](https://github.com/webmproject/libwebp/blob/v1.6.0/PATENTS) |
+| [Apache-2.0.txt](Apache-2.0.txt) | [gif-dispose 6.0.0 manifest at the recorded commit](https://github.com/kornelski/image-gif-dispose/blob/e9a8e962ad58191e7aa2efc6cffa139c3f9242d2/Cargo.toml) offers Apache 2.0. The text comes from the locked `gif` crate. |
 
 Review this list when the locked versions change. Use the crate's own license archive when it supplies the text.

@@ -10,3 +10,5 @@
 /.env.*
 
 __pycache__/
+
+/website/converter/target/

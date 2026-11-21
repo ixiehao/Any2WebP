@@ -1,4 +1,4 @@
-"""Build the license and corresponding-source index for the macOS app."""
+"""Build the license and corresponding-source index for Any2WebP."""
 
 import json
 from pathlib import Path
@@ -10,11 +10,13 @@ PROJECT = Path(__file__).resolve().parents[1]
 LICENSES = PROJECT / "docs/licenses"
 
 
-def resolved_packages(target):
+def resolved_packages(target, manifest=None):
+    features = [] if manifest else ["--features", "tauri/custom-protocol"]
+    manifest = manifest or PROJECT / "src-tauri/Cargo.toml"
     metadata = json.loads(subprocess.check_output(
-        ["cargo", "metadata", "--manifest-path", str(PROJECT / "src-tauri/Cargo.toml"),
+        ["cargo", "metadata", "--manifest-path", str(manifest),
          "--locked", "--format-version", "1", "--filter-platform", target,
-         "--features", "tauri/custom-protocol"],
+         *features],
         cwd=PROJECT,
     ))
     graph = metadata["resolve"]
@@ -49,9 +51,9 @@ def notice_files(package, overrides):
     return sorted(paths, key=lambda path: path.name)
 
 
-def write_notices(target, destination):
+def write_notices(target, destination, manifest=None):
     overrides = json.loads((LICENSES / "rust-overrides.json").read_text(encoding="utf-8"))
-    packages = resolved_packages(target)
+    packages = resolved_packages(target, manifest)
     text_numbers = {}
     rows = []
     for package in packages:
@@ -80,6 +82,7 @@ def write_notices(target, destination):
 
 
 if __name__ == "__main__":
-    if len(sys.argv) != 3:
-        sys.exit("Usage: collect-rust-notices.py TARGET OUTPUT")
-    write_notices(sys.argv[1], Path(sys.argv[2]))
+    if len(sys.argv) not in (3, 4):
+        sys.exit("Usage: collect-rust-notices.py TARGET OUTPUT [MANIFEST]")
+    manifest = Path(sys.argv[3]).resolve() if len(sys.argv) == 4 else None
+    write_notices(sys.argv[1], Path(sys.argv[2]), manifest)

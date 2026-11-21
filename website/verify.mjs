@@ -11,6 +11,10 @@ const expectedUrls = languages.flatMap(([, route]) => pages.map(page => site + r
 const titles = new Set();
 const descriptions = new Set();
 
+const wasm = await readFile(resolve(output, "online-converter.wasm"));
+assert.equal(wasm.subarray(0, 8).toString("hex"), "0061736d01000000");
+assert.match(await read("ONLINE-CONVERTER-NOTICES.txt"), /image-webp/);
+
 const sitemap = await read("sitemap.xml");
 assert.deepEqual([...sitemap.matchAll(/<loc>([^<]+)<\/loc>/g)].map(match => match[1]).sort(), expectedUrls.sort());
 
@@ -47,6 +51,8 @@ for (const [lang, route] of languages) {
       assert.ok(html.includes('href="../#formats"'));
       assert.doesNotMatch(html, /<script\b/);
     } else {
+      assert.match(html, /<section class="online-converter" id="online"/);
+      assert.match(html, /<script type="module" src="[^"]*online\.js\?v=1">/);
       const data = JSON.parse(html.match(/<script type="application\/ld\+json">(.*?)<\/script>/)[1]);
       assert.equal(data["@type"], "SoftwareApplication");
       assert.equal(data.url, url);

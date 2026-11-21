@@ -3,6 +3,8 @@
 使用 GitHub Pages 发布三种语言的静态页面。英文在根路径，简体中文在 `zh/`，日语在 `ja/`。[Any2WebP 官网](https://ixiehao.github.io/Any2WebP/)
 
 ```sh
+rustup target add wasm32-unknown-unknown
+./website/converter/build.sh
 node website/build.mjs
 node website/verify.mjs
 python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
@@ -15,6 +17,12 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 首页围绕 Mac 本机批量转换、JPG／PNG／GIF 转 WebP 与视频转动图。两篇三语教程分别介绍 GIF 转无损 WebP 和按目标体积压缩 WebP，操作步骤和适用边界由 `guides.mjs` 维护。首页、教程和语言切换均用静态链接。
 
 搜索页有独立标题、描述和 canonical，语言版本互相声明 `hreflang`，英文为默认。首页以 `SoftwareApplication` 描述免费应用、兼容性、截图和下载入口。Sitemap 收录首页与教程，下载跳转页标记为 `noindex`。域名根目录的 robots.txt 由 [个人主页仓库](https://github.com/ixiehao/ixiehao.github.io) 指向项目 Sitemap。构建后运行 `website/verify.mjs` 核对上述入口。
+
+## 在线转换
+
+首页可一次将一张 JPG、静态 PNG 或 GIF 转为 WebP。浏览器把文件交给独立 Worker，使用 WebAssembly 转换，站点只提供程序资源。每个文件最多 16 MB、12.5 百万像素和 8192 px 长边。GIF 最多 240 帧且累计画布不超过 2400 万像素，支持透明度、帧延时与循环。转换保留解码后的画面，有限循环次数最多为 WebP 可表示的 65,535 次。
+
+`converter/Cargo.lock` 锁定浏览器转换器依赖。构建时发布 WebAssembly 和依赖许可证，可在 `ONLINE-CONVERTER-NOTICES.txt` 查阅。使用 `cargo test --manifest-path website/converter/Cargo.toml --locked` 验证编解码。
 
 ## 图片和下载素材
 

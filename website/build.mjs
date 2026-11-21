@@ -17,7 +17,7 @@ const guideEntries = Object.entries(guides);
 const pageUrl = (t, leaf = "") => site + t.route + leaf;
 const pathPrefix = (t, leaf = "") => "../".repeat(Number(Boolean(t.route)) + Number(Boolean(leaf))) || "./";
 const workspaceImage = key => "assets/workspace-" + key + ".png?v=hummingbird-kb";
-const versionedStyles = "style.css?v=4";
+const versionedStyles = "style.css?v=5";
 const demoFiles = {
   gif: "docs/assets/hummingbird-loop.gif",
   webp: "docs/assets/hummingbird-loop.webp",
@@ -99,7 +99,7 @@ function softwareMetadata(key, t) {
     name: "Any2WebP",
     url: pageUrl(t),
     inLanguage: t.lang,
-    description: t.description,
+    description: t.heroDescription,
     applicationCategory: "MultimediaApplication",
     operatingSystem: "macOS 26.0+",
     processorRequirements: "Apple Silicon",
@@ -114,6 +114,16 @@ function softwareMetadata(key, t) {
 
 function downloadButton(t) {
   return '<a class="button" href="' + dmg + '">' + escape(t.download) + '</a>';
+}
+
+function onlineConverter(t) {
+  const messages = escape(JSON.stringify(t.online));
+  return '      <section class="online-converter" id="online" aria-labelledby="online-title" data-messages="' + messages + '">' +
+    '<h2 id="online-title">' + escape(t.online.title) + '</h2><p>' + escape(t.online.help) + '</p>' +
+    '<div class="online-actions"><button class="button online-pick" type="button" disabled>' + escape(t.online.pick) + '</button>' +
+    '<input type="file" accept="image/jpeg,image/png,image/gif,.jpg,.jpeg,.png,.gif" hidden>' +
+    '<a class="online-download" hidden download>' + escape(t.online.download) + '</a></div>' +
+    '<p class="online-status" role="status"></p><noscript><p>' + escape(t.online.unavailable) + '</p></noscript></section>';
 }
 
 function page(key, t) {
@@ -155,6 +165,7 @@ function page(key, t) {
     '  <section class="hero" aria-labelledby="title"><div class="hero-inner container">',
     '    <div class="hero-copy"><h1 id="title">' + escape(t.heroLead) + ' <span>' + escape(t.heroAccent) + '</span></h1>',
     '      <p>' + escape(t.heroDescription) + '</p>',
+    onlineConverter(t),
     '      <div class="actions">' + cta + '<a class="source" href="' + repo + '">' + escape(t.source) + '</a></div>',
     '      <div class="requirements">' + escape(t.requirement) + '</div>',
     '    </div>',
@@ -182,6 +193,7 @@ function page(key, t) {
     '</main>',
     footer(t),
     '<script type="module" src="' + prefix + 'demo.js?v=3"></script>',
+    '<script type="module" src="' + prefix + 'online.js?v=1"></script>',
     "</body>",
     "</html>",
   ].join("\n");
@@ -226,6 +238,11 @@ function downloadPage(t) {
 const assets = {
   "style.css": "website/style.css",
   "demo.js": "website/demo.js",
+  "online.js": "website/online.js",
+  "online-worker.js": "website/online-worker.js",
+  "byte-size.js": "app/byte-size.js",
+  "online-converter.wasm": "website/converter/target/wasm32-unknown-unknown/release/any2webp_online.wasm",
+  "ONLINE-CONVERTER-NOTICES.txt": "website/converter/target/ONLINE-CONVERTER-NOTICES.txt",
   "assets/icon.png": "app/icon.png",
   "assets/hummingbird-poster.png": "website/assets/hummingbird-poster.png",
   "assets/hummingbird-frames.webp": "website/assets/hummingbird-frames.webp",
