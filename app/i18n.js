@@ -1,3 +1,8 @@
+import { fileLimitBytes, frameBudgetBytes, sizeText } from "./byte-size.js";
+
+const fileLimit = sizeText(fileLimitBytes);
+const frameLimit = sizeText(frameBudgetBytes);
+
 export const languages = ["zh-CN", "en", "ja"];
 const storageKey = "any2webp-language";
 let preference = "system";
@@ -49,8 +54,8 @@ const catalog = {
   frameUniform: ["统一帧率", "Uniform frame rate", "一定のフレームレート"],
   frameSetFps: ["应用到所有帧", "Apply to All Frames", "全フレームに適用"],
   frameTotal: ["{count} 帧 · {seconds} 秒", "{count} frames · {seconds} s", "{count} フレーム · {seconds} 秒"],
-  frameBudget: ["画布 {width} × {height} · 解码预计 {memory} / 512 MiB", "{width} × {height} canvas · estimated decode {memory} / 512 MiB", "キャンバス {width} × {height} · デコード見積もり {memory} / 512 MiB"],
-  frameEditorBudget: ["超出 600 帧或 512 MiB 的解码预算，请减少帧数或先缩小图片。", "The edit exceeds 600 frames or 512 MiB of decoded pixels. Remove frames or use smaller images.", "600 フレームまたはデコード容量 512 MiB を超えています。フレーム数か画像サイズを減らしてください。"],
+  frameBudget: [`画布 {width} × {height} · 解码预计 {memory} / ${frameLimit}`, `{width} × {height} canvas · estimated decode {memory} / ${frameLimit}`, `キャンバス {width} × {height} · デコード見積もり {memory} / ${frameLimit}`],
+  frameEditorBudget: [`超出 600 帧或 ${frameLimit} 的解码预算，请减少帧数或先缩小图片。`, `The edit exceeds 600 frames or ${frameLimit} of decoded pixels. Remove frames or use smaller images.`, `600 フレームまたはデコード容量 ${frameLimit} を超えています。フレーム数か画像サイズを減らしてください。`],
   frameNeedTwo: ["至少需要两帧。", "Select at least two frames.", "2 フレーム以上必要です。"],
   frameUseStill: ["请选择静态图片作为单帧。", "Select a still image for each frame.", "各フレームには静止画を選んでください。"],
   frameApply: ["应用编辑", "Apply Edits", "編集を適用"],
@@ -285,11 +290,11 @@ const catalog = {
   invalidStrength: ["画质强度须在 0 到 100 之间。", "Quality strengths must be between 0 and 100.", "画質の調整量は 0～100 に設定してください。"],
   memoryLimit: ["内存不足。", "There is not enough memory.", "メモリが不足しています。"],
   animationLimit: ["动画超出帧数、时长或解码像素上限。", "The animation exceeds the frame, duration, or decoded-pixel limit.", "アニメーションがフレーム数、再生時間、または展開後の画素数の上限を超えています。"],
-  inputFileLimit: ["请选择 64 MiB 以内的有效图片。", "Choose a valid image of 64 MiB or less.", "64 MiB 以下の有効な画像を選択してください。"],
+  inputFileLimit: [`请选择 ${fileLimit} 以内的有效图片。`, `Choose a valid image of ${fileLimit} or less.`, `${fileLimit} 以下の有効な画像を選択してください。`],
   unsupportedMultiFrame: ["此格式的多帧文件暂不支持。", "Multi-frame files in this format are unsupported.", "この形式の複数フレームのファイルには対応していません。"],
   noFrames: ["文件里没有可播放的画面。", "The file contains no displayable frames.", "表示できるフレームがありません。"],
   frameDelayLimit: ["APNG 单帧延时超出 WebP 格式上限。", "An APNG frame delay exceeds the WebP limit.", "APNG のフレーム表示時間が WebP の上限を超えています。"],
-  outputLimit: ["输出超过 64 MiB，请尝试目标体积模式。", "The output exceeds 64 MiB. Try Target size mode.", "出力が 64 MiB を超えています。目標サイズモードをお試しください。"],
+  outputLimit: [`输出超过 ${fileLimit}，请尝试目标体积模式。`, `The output exceeds ${fileLimit}. Try Target size mode.`, `出力が ${fileLimit} を超えています。目標サイズモードをお試しください。`],
   invalidCommand: ["处理命令无效。", "The processing command is invalid.", "処理コマンドが無効です。"],
   invalidTarget: ["目标体积无效。", "The target size is invalid.", "目標サイズが無効です。"],
   unsupportedImage: ["此图片格式暂不支持。", "This image format is unsupported.", "この画像形式には対応していません。"],

@@ -7,6 +7,7 @@ import { formatTimecode, videoSettingsError } from "./trim-time.js";
 import { createUpdateChecker } from "./update-check.js";
 import { currentExport, planExports } from "./export-queue.js";
 import { bindVideoDependencies, dependencyError } from "./video-dependencies.js";
+import { bytesPerKB, fileLimitBytes, sizeText } from "./byte-size.js";
 
 const { app: tauriApp, core: { invoke }, event: appEvents, webview } = window.__TAURI__;
 const $ = (id) => document.getElementById(id);
@@ -39,11 +40,6 @@ let elapsed = 0;
 let started = null;
 let raf = 0;
 const basename = (path) => path.split("/").at(-1) || path;
-const sizeText = (bytes) => {
-  if (bytes < 1024) return bytes + " B";
-  if (bytes < 1024 * 1024) return (bytes / 1024).toFixed(1) + " KiB";
-  return (bytes / (1024 * 1024)).toFixed(2) + " MiB";
-};
 const videoFields = ["clip-fps", "clip-edge"];
 const neutralQuality = Object.freeze({ shadows: 0, denoise: 0, sharpen: 0 });
 const qualityOptions = Object.keys(neutralQuality);
@@ -233,7 +229,7 @@ function exportSettings() {
   return {
     destination,
     format: $("settings").elements.format.value,
-    targetBytes: $("mode").value === "target" ? Number($("target").value) * 1024 : 0,
+    targetBytes: $("mode").value === "target" ? Number($("target").value) * bytesPerKB : 0,
   };
 }
 
@@ -1067,6 +1063,7 @@ $("mode").onchange = () => {
   $("target").required = visible;
   renderQueue();
 };
+$("target").max = Math.floor(fileLimitBytes / bytesPerKB);
 $("target").oninput = () => renderQueue();
 const qualityPanel = $("quality-settings");
 try { qualityPanel.open = localStorage.getItem("any2webp-quality-panel") === "open"; } catch {}

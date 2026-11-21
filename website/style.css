@@ -77,7 +77,7 @@ h1 span { display: block; margin-top: 3px; color: var(--accent); }
   background-image: conic-gradient(#e2eaf8 25%, transparent 0 50%, #e2eaf8 0 75%, transparent 0);
   background-size: 20px 20px;
 }
-.demo-image img { width: 100%; }
+.demo-image :is(img, canvas) { width: 100%; height: auto; }
 figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 3px 10px; padding: 7px 10px; }
 figcaption a { font-weight: 700; text-underline-offset: 3px; }
 figcaption span, .format-card .demo-note, .format-card .demo-status { font-size: .875rem; }
@@ -128,6 +128,8 @@ figcaption span { white-space: nowrap; color: var(--muted); }
   .feature { padding: 14px 11px; }
   .feature h3 { font-size: 1.06rem; }
   .format-card, .install { padding: 17px; }
+  .sample-pair { gap: 8px; }
+  .sample-pair figcaption { gap: 3px 6px; padding-inline: 7px; }
   .install-actions { justify-self: start; }
 }
 @media (max-width: 355px) {

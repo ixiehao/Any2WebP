@@ -36,11 +36,11 @@
 
 Any2WebP で **「青緑のハチドリ」** の GIF を可逆 WebP に書き出し、60 フレーム、透明な背景、3 秒のループを維持しています。
 
-| [GIF · 1.03 MiB](docs/assets/hummingbird-loop.gif) | [WebP · 731.3 KiB](docs/assets/hummingbird-loop.webp) |
+| [GIF · 1.08 MB](docs/assets/hummingbird-loop.gif) | [WebP · 748.9 KB](docs/assets/hummingbird-loop.webp) |
 | --- | --- |
 | <img src="docs/assets/hummingbird-loop.gif" width="230" alt="青緑のハチドリとコーラルオレンジの花、GIF 版"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="青緑のハチドリとコーラルオレンジの花、WebP 版"> |
 
-この例の WebP は GIF より **326.7 KiB（30.9%）** 小さくなりました。[公式サイトで比較を再生](https://ixiehao.github.io/Any2WebP/ja/#formats) · [Google の WebP FAQ](https://developers.google.com/speed/webp/faq)
+この例の WebP は GIF より **334.5 KB（30.9%）** 小さくなりました。[公式サイトで比較を再生](https://ixiehao.github.io/Any2WebP/ja/#formats) · [Google の WebP FAQ](https://developers.google.com/speed/webp/faq)
 
 ## 静止画の形式を選ぶ
 
