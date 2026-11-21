@@ -2,6 +2,7 @@ import { copyFile, mkdir, readFile, stat, writeFile } from "node:fs/promises";
 import { dirname, resolve, join } from "node:path";
 import { fileURLToPath } from "node:url";
 import { locales } from "./content.mjs";
+import { guides } from "./guides.mjs";
 import { bytesPerKB, sizeText } from "../app/byte-size.js";
 
 const here = dirname(fileURLToPath(import.meta.url));
@@ -12,7 +13,11 @@ const repo = "https://github.com/ixiehao/Any2WebP";
 const asset = "Any2WebP-0.2.30-arm64.dmg";
 const dmg = repo + "/releases/latest/download/" + asset;
 const translations = Object.entries(locales);
-const versionedStyles = "style.css?v=3";
+const guideEntries = Object.entries(guides);
+const pageUrl = (t, leaf = "") => site + t.route + leaf;
+const pathPrefix = (t, leaf = "") => "../".repeat(Number(Boolean(t.route)) + Number(Boolean(leaf))) || "./";
+const workspaceImage = key => "assets/workspace-" + key + ".png?v=hummingbird-kb";
+const versionedStyles = "style.css?v=4";
 const demoFiles = {
   gif: "docs/assets/hummingbird-loop.gif",
   webp: "docs/assets/hummingbird-loop.webp",
@@ -45,25 +50,75 @@ function head(t, prefix, canonical, extra = "") {
   ].join("\n");
 }
 
-function languages(t, prefix) {
-  return translations.map(([, target]) =>
-    '<a lang="' + target.lang + '" hreflang="' + target.lang + '" href="' + prefix + target.route +
+function masthead(t, prefix, leaf = "") {
+  const home = prefix + t.route;
+  const links = [["features", t.features], ["formats", t.formats], ["guides", t.guidesHeading]];
+  const sections = links.map(([id, label]) =>
+    '<a href="' + (leaf ? home : "") + '#' + id + '">' + escape(label) + '</a>').join("");
+  const languages = translations.map(([, target]) =>
+    '<a lang="' + target.lang + '" hreflang="' + target.lang + '" href="' + prefix + target.route + leaf +
     (target === t ? '" aria-current="page"' : '"') + '>' + target.label + '</a>').join("");
+  return '<header class="masthead container"><a class="brand" href="' + home +
+    '"><img src="' + prefix + 'assets/icon.png" width="34" height="34" alt="">Any2WebP</a>' +
+    '<div class="nav"><nav aria-label="' + escape(t.features + " / " + t.formats) + '">' + sections +
+    '</nav><nav class="languages" aria-label="' + escape(t.languageMenu) +
+    '">' + languages + '</nav></div></header>';
+}
+
+function footer(t) {
+  return '<footer class="container footer"><span>Any2WebP · ' + escape(t.free) +
+    '</span><div><a href="' + repo + '">GitHub</a><a href="' + repo + '/issues/new/choose">' +
+    escape(t.support) + '</a></div></footer>';
+}
+
+function publicHead(key, t, copy, leaf = "", structuredData = "") {
+  const url = pageUrl(t, leaf);
+  const image = site + workspaceImage(key);
+  const alternates = translations.map(([, target]) =>
+    '  <link rel="alternate" hreflang="' + target.lang + '" href="' + pageUrl(target, leaf) + '">');
+  return head({ ...copy, lang: t.lang }, pathPrefix(t, leaf), url, [
+    ...alternates,
+    '  <link rel="alternate" hreflang="x-default" href="' + site + leaf + '">',
+    '  <meta property="og:type" content="website">',
+    '  <meta property="og:site_name" content="Any2WebP">',
+    '  <meta property="og:locale" content="' + t.socialLocale + '">',
+    '  <meta property="og:title" content="' + escape(copy.title) + '">',
+    '  <meta property="og:description" content="' + escape(copy.description) + '">',
+    '  <meta property="og:url" content="' + url + '">',
+    '  <meta property="og:image" content="' + image + '">',
+    '  <meta property="og:image:alt" content="' + escape(t.screenshotAlt) + '">',
+    '  <meta name="twitter:card" content="summary_large_image">',
+    structuredData,
+  ].filter(Boolean).join("\n"));
+}
+
+function softwareMetadata(key, t) {
+  const data = {
+    "@context": "https://schema.org",
+    "@type": "SoftwareApplication",
+    name: "Any2WebP",
+    url: pageUrl(t),
+    inLanguage: t.lang,
+    description: t.description,
+    applicationCategory: "MultimediaApplication",
+    operatingSystem: "macOS 26.0+",
+    processorRequirements: "Apple Silicon",
+    downloadUrl: dmg,
+    screenshot: site + workspaceImage(key),
+    license: repo + "/blob/main/LICENSE",
+    offers: { "@type": "Offer", price: "0", priceCurrency: "USD", url: dmg },
+    featureList: t.cards.map(([, title]) => title),
+  };
+  return '  <script type="application/ld+json">' + JSON.stringify(data).replaceAll("<", "\\u003c") + '</script>';
+}
+
+function downloadButton(t) {
+  return '<a class="button" href="' + dmg + '">' + escape(t.download) + '</a>';
 }
 
 function page(key, t) {
-  const prefix = t.route ? "../" : "./";
-  const screenshot = "assets/workspace-" + key + ".png?v=hummingbird-kb";
-  const alternates = translations.map(([, language]) =>
-    '  <link rel="alternate" hreflang="' + language.lang + '" href="' + site + language.route + '">');
-  const social = [
-    '  <link rel="alternate" hreflang="x-default" href="' + site + '">',
-    '  <meta property="og:type" content="website">',
-    '  <meta property="og:title" content="' + escape(t.title) + '">',
-    '  <meta property="og:description" content="' + escape(t.description) + '">',
-    '  <meta property="og:url" content="' + site + t.route + '">',
-    '  <meta property="og:image" content="' + site + screenshot + '">',
-  ];
+  const prefix = pathPrefix(t);
+  const screenshot = workspaceImage(key);
   const featureCards = t.cards.map(([name, title, text]) =>
     '<article class="feature"><div class="feature-icon">' + icon(name) + '</div><h3>' + escape(title) +
     '</h3><p>' + escape(text) + '</p></article>').join("\n");
@@ -87,20 +142,18 @@ function page(key, t) {
   };
   const stillRows = t.stillRows.map(([label, type, use]) =>
     '<div class="still-row"><dt>' + label + '</dt><dd><b>' + escape(type) + '</b><span>' + escape(use) + '</span></dd></div>').join("\n");
-  const cta = '<a class="button" href="' + dmg + '">' + escape(t.download) + '</a>';
+  const cta = downloadButton(t);
+  const guideCards = guideEntries.map(([slug, guide]) =>
+    '<article class="feature"><h3><a href="' + slug + '/">' + escape(guide[key].title) +
+    '</a></h3><p>' + escape(guide[key].description) + '</p></article>').join("\n");
 
-  return head(t, prefix, site + t.route, [...alternates, ...social].join("\n")) + "\n" + [
+  return publicHead(key, t, t, "", softwareMetadata(key, t)) + "\n" + [
     "<body>",
     '<a class="skip" href="#main">' + escape(t.skip) + '</a>',
-    '<header class="masthead container">',
-    '  <a class="brand" href="' + prefix + t.route + '"><img src="' + prefix + 'assets/icon.png" width="34" height="34" alt="">Any2WebP</a>',
-    '  <div class="nav"><nav aria-label="' + escape(t.features + " / " + t.formats) + '"><a href="#features">' + escape(t.features) +
-    '</a><a href="#formats">' + escape(t.formats) + '</a></nav><nav class="languages" aria-label="' + escape(t.languageMenu) +
-    '">' + languages(t, prefix) + '</nav></div>',
-    '</header>',
+    masthead(t, prefix),
     '<main id="main">',
     '  <section class="hero" aria-labelledby="title"><div class="hero-inner container">',
-    '    <div class="hero-copy"><h1 id="title">' + escape(t.heroLead) + '<span>' + escape(t.heroAccent) + '</span></h1>',
+    '    <div class="hero-copy"><h1 id="title">' + escape(t.heroLead) + ' <span>' + escape(t.heroAccent) + '</span></h1>',
     '      <p>' + escape(t.heroDescription) + '</p>',
     '      <div class="actions">' + cta + '<a class="source" href="' + repo + '">' + escape(t.source) + '</a></div>',
     '      <div class="requirements">' + escape(t.requirement) + '</div>',
@@ -120,17 +173,44 @@ function page(key, t) {
     '    <article class="format-card"><h3>' + escape(t.still) + '</h3><dl>' + stillRows + '</dl><a class="small-link" href="https://developers.google.com/speed/webp">' +
     escape(t.formatSource) + '</a></article>',
     '  </div></section>',
+    '  <section class="container section" id="guides"><h2>' + escape(t.guidesHeading) + '</h2><div class="guide-links">' + guideCards + '</div></section>',
     '  <section class="container section"><div class="install"><div><h2>' + escape(t.installHeading) + '</h2>',
     '    <p>' + escape(t.installIntro) + '</p><p class="requirements">' + escape(t.previewNote) + '</p></div>',
     '    <div class="install-actions">' + cta + '<div class="downloads"><a href="' + repo + '/releases/latest">' + escape(t.release) +
     '</a><a href="' + dmg + '.sha256">' + escape(t.checksum) + '</a></div></div>',
     '  </div></section>',
     '</main>',
-    '<footer class="container footer"><span>Any2WebP · ' + escape(t.free) + '</span><div><a href="' + repo + '">GitHub</a><a href="' +
-    repo + '/issues/new/choose">' + escape(t.support) + '</a></div></footer>',
+    footer(t),
     '<script type="module" src="' + prefix + 'demo.js?v=3"></script>',
     "</body>",
     "</html>",
+  ].join("\n");
+}
+
+function guidePage(key, t, slug, guide) {
+  const leaf = slug + "/";
+  const prefix = pathPrefix(t, leaf);
+  const steps = guide.steps.map(step => '<li>' + escape(step) + '</li>').join("\n");
+  const related = guideEntries.find(([other]) => other !== slug);
+  return publicHead(key, t, { ...guide, title: guide.title + " | Any2WebP" }, leaf) + "\n" + [
+    "<body>",
+    '<a class="skip" href="#main">' + escape(t.skip) + '</a>',
+    masthead(t, prefix, leaf),
+    '<main class="container guide" id="main">',
+    '  <article>',
+    '    <h1>' + escape(guide.title) + '</h1>',
+    '    <p class="guide-intro">' + escape(guide.description) + '</p>',
+    '    <div class="actions">' + downloadButton(t) + '</div>',
+    '    <p class="requirements">' + escape(t.requirement) + '</p>',
+    '    <h2>' + escape(t.stepsHeading) + '</h2><ol>' + steps + '</ol>',
+    '    <h2>' + escape(guide.detailHeading) + '</h2><p>' + escape(guide.detail) + '</p>',
+    '    <ul class="guide-related"><li><a href="../#formats">' + escape(t.comparison) + '</a></li>' +
+    '<li><a href="../' + related[0] + '/">' + escape(related[1][key].title) + '</a></li></ul>',
+    '  </article>',
+    '</main>',
+    footer(t),
+    '</body>',
+    '</html>',
   ].join("\n");
 }
 
@@ -164,8 +244,15 @@ for (const [key, t] of translations) {
   await mkdir(join(output, t.route, "download"), { recursive: true });
   await writeFile(join(output, t.route, "index.html"), page(key, t) + "\n");
   await writeFile(join(output, t.route, "download/index.html"), downloadPage(t));
+  for (const [slug, guide] of guideEntries) {
+    const path = join(output, t.route, slug);
+    await mkdir(path, { recursive: true });
+    await writeFile(join(path, "index.html"), guidePage(key, t, slug, guide[key]) + "\n");
+  }
 }
-const urls = translations.map(([, t]) => "<url><loc>" + site + t.route + "</loc></url>").join("\n");
+const indexedLeaves = ["", ...guideEntries.map(([slug]) => slug + "/")];
+const urls = translations.flatMap(([, t]) => indexedLeaves.map(leaf =>
+  "<url><loc>" + pageUrl(t, leaf) + "</loc></url>")).join("\n");
 await writeFile(join(output, "sitemap.xml"), '<?xml version="1.0" encoding="UTF-8"?>\n' +
   '<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + urls + "\n</urlset>\n");
 await writeFile(join(output, "robots.txt"), "User-agent: *\nAllow: /\nSitemap: " + site + "sitemap.xml\n");

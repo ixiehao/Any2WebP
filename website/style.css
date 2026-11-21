@@ -138,3 +138,17 @@ figcaption span { white-space: nowrap; color: var(--muted); }
   .languages a { padding-inline: 5px; }
   .feature-grid { grid-template-columns: minmax(0, 1fr); }
 }
+
+.guide-links { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; }
+.guide-links h3 { margin-top: 0; }
+.guide-links a, .guide-related a { text-underline-offset: 3px; }
+.guide { max-width: 760px; padding-block: clamp(30px, 6vw, 72px) 16px; }
+.guide h1 { font-size: clamp(2rem, 4.5vw, 3rem); }
+.guide-intro { margin-top: 16px; font-size: 1.1rem; color: var(--muted); }
+.guide h2 { margin: 36px 0 12px; font-size: 1.4rem; }
+.guide ol { padding-inline-start: 1.4em; margin: 0; }
+.guide li + li { margin-top: 10px; }
+.guide-related { margin: 22px 0 0; padding-inline-start: 1.4em; }
+@media (max-width: 640px) {
+  .guide-links { grid-template-columns: 1fr; }
+}
