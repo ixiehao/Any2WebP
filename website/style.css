@@ -54,6 +54,7 @@ h1 span { display: block; margin-top: 3px; color: var(--accent); }
 .source { font-size: .95rem; font-weight: 620; text-underline-offset: 4px; text-decoration: none; }
 .requirements { margin-top: 13px; color: var(--muted); font-size: .88rem; }
 .hero-image img { border: 1px solid #bfcee8; border-radius: 15px; box-shadow: 0 18px 42px #293d6826; }
+.hero-image figcaption { display: block; padding: 8px 2px 0; color: var(--muted); font-size: .8rem; }
 
 .section { padding-top: 65px; }
 .section > h2, .install h2 { font-size: clamp(1.65rem, 3vw, 2.25rem); letter-spacing: -.035em; }

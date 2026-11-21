@@ -52,7 +52,7 @@ function languages(t, prefix) {
 
 function page(key, t) {
   const prefix = t.route ? "../" : "./";
-  const screenshot = "assets/workspace-" + key + ".png";
+  const screenshot = "assets/workspace-" + key + ".png?v=hummingbird";
   const alternates = translations.map(([, language]) =>
     '  <link rel="alternate" hreflang="' + language.lang + '" href="' + site + language.route + '">');
   const social = [
@@ -105,7 +105,8 @@ function page(key, t) {
     '      <div class="actions">' + cta + '<a class="source" href="' + repo + '">' + escape(t.source) + '</a></div>',
     '      <div class="requirements">' + escape(t.requirement) + '</div>',
     '    </div>',
-    '    <div class="hero-image"><img src="' + prefix + screenshot + '" width="2480" height="1550" fetchpriority="high" alt="' + escape(t.screenshotAlt) + '"></div>',
+    '    <figure class="hero-image"><img src="' + prefix + screenshot + '" width="2480" height="1550" fetchpriority="high" alt="' + escape(t.screenshotAlt) +
+    '"><figcaption>' + escape(t.screenshotCaption) + '</figcaption></figure>',
     '  </div></section>',
     '  <section class="container section" id="features"><h2>' + escape(t.featureHeading) + '</h2><div class="feature-grid">' + featureCards + '</div></section>',
     '  <section class="container section formats" id="formats"><h2>' + escape(t.formatHeading) + '</h2><div class="format-grid">',

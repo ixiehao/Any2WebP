@@ -6,7 +6,9 @@
 
 [下载 macOS 版](https://ixiehao.github.io/Any2WebP/zh/download/) · [官网](https://ixiehao.github.io/Any2WebP/zh/) · [MIT 许可证](LICENSE)
 
-![Any2WebP 同步对比 GIF 原图与 WebP 成品](docs/assets/any2webp-zh-CN.png)
+![Any2WebP 同步对比青羽蜂鸟的 GIF 原图与无损 WebP 成品](docs/assets/any2webp-zh-CN.png)
+
+*应用截图展示「青羽蜂鸟」GIF 的无损 WebP 导出。*
 
 ## 三步完成转换
 

@@ -15,7 +15,8 @@ export const locales = {
     download: "Download for macOS",
     source: "View source",
     requirement: "Apple Silicon · macOS 26 or later",
-    screenshotAlt: "Any2WebP showing a GIF and its smaller WebP export side by side",
+    screenshotAlt: "Any2WebP showing the teal hummingbird GIF and its lossless WebP export side by side",
+    screenshotCaption: "In the app, the hummingbird GIF is exported as lossless WebP.",
     featureHeading: "From a single image to an animation",
     cards: [
       ["arrows-exchange", "Batch convert", "Drag in files, choose WebP or GIF, and export them together. Set a target size when you need one."],
@@ -67,7 +68,8 @@ export const locales = {
     download: "下载 macOS 版",
     source: "查看源代码",
     requirement: "Apple Silicon · macOS 26 或更新版本",
-    screenshotAlt: "Any2WebP 左右同步对比 GIF 原图和压缩后的 WebP 成品",
+    screenshotAlt: "Any2WebP 左右同步对比青羽蜂鸟的 GIF 原图和无损 WebP 成品",
+    screenshotCaption: "应用截图展示「青羽蜂鸟」GIF 的无损 WebP 导出。",
     featureHeading: "一张图、一组图，或一段视频",
     cards: [
       ["arrows-exchange", "批量转换", "拖入多张图片，选 WebP 或 GIF 一次导出。需要控制大小时，可设置目标体积。"],
@@ -119,7 +121,8 @@ export const locales = {
     download: "macOS 版をダウンロード",
     source: "ソースコードを見る",
     requirement: "Apple Silicon · macOS 26 以降",
-    screenshotAlt: "GIF の原画と WebP の書き出し結果を並べた Any2WebP の画面",
+    screenshotAlt: "青緑のハチドリの GIF と可逆 WebP を並べて表示した Any2WebP の画面",
+    screenshotCaption: "アプリの画面では、ハチドリの GIF を可逆 WebP に書き出しています。",
     featureHeading: "静止画から動画まで",
     cards: [
       ["arrows-exchange", "一括変換", "ファイルをドラッグし、WebP または GIF を選んでまとめて変換。目標サイズも指定できます。"],

@@ -6,7 +6,9 @@ English · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
 [Download for macOS](https://ixiehao.github.io/Any2WebP/download/) · [Website](https://ixiehao.github.io/Any2WebP/) · [MIT license](LICENSE)
 
-![Any2WebP comparing the original GIF and exported WebP side by side](docs/assets/any2webp-en.png)
+![Any2WebP comparing the Teal Hummingbird GIF and its lossless WebP export side by side](docs/assets/any2webp-en.png)
+
+*The app screenshot shows a lossless WebP export of the Teal Hummingbird GIF.*
 
 ## Convert in three steps
 

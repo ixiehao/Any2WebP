@@ -6,7 +6,9 @@
 
 [macOS 版をダウンロード](https://ixiehao.github.io/Any2WebP/ja/download/) · [公式サイト](https://ixiehao.github.io/Any2WebP/ja/) · [MIT ライセンス](LICENSE)
 
-![Any2WebP で変換前の GIF と WebP の書き出し結果を比較](docs/assets/any2webp-ja.png)
+![Any2WebP で青緑のハチドリの GIF と可逆 WebP の書き出し結果を比較](docs/assets/any2webp-ja.png)
+
+*アプリの画面では、ハチドリの GIF を可逆 WebP に書き出しています。*
 
 ## 3 ステップで変換
 
