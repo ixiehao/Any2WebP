@@ -8,7 +8,7 @@ English · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
 ![Any2WebP comparing the Teal Hummingbird GIF and its lossless WebP export side by side](docs/assets/any2webp-en.png)
 
-*The app screenshot shows a lossless WebP export of the Teal Hummingbird GIF.*
+*The GIF and lossless WebP shown here are the files used in the comparison below.*
 
 ## Convert in three steps
 
@@ -34,13 +34,13 @@ Conversion runs locally, and WebP encoding uses the bundled libwebp. Large anima
 | File size | Lossy and lossless options, often smaller | Works well for simple graphics, but complex scenes can take more space or show banding |
 | Good for | Web animations, transparent graphics, and video clips | GIF-only platforms and older software |
 
-**Teal Hummingbird** uses the same 60 frames in both formats, with a 3-second loop.
+Any2WebP exported **Teal Hummingbird** from GIF to lossless WebP, preserving its 60 frames, transparent background, and 3-second loop.
 
-| [GIF · 1,058.0 KiB](docs/assets/hummingbird-loop.gif) | [WebP · 909.4 KiB](docs/assets/hummingbird-loop.webp) |
+| [GIF · 1.03 MiB](docs/assets/hummingbird-loop.gif) | [WebP · 731.3 KiB](docs/assets/hummingbird-loop.webp) |
 | --- | --- |
 | <img src="docs/assets/hummingbird-loop.gif" width="230" alt="Teal hummingbird and coral-orange flower, GIF"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="Teal hummingbird and coral-orange flower, WebP"> |
 
-The lossy WebP keeps the wings partially transparent and is **148.6 KiB (14.0%) smaller** in this example. [Play the comparison on the website](https://ixiehao.github.io/Any2WebP/#formats) · [Google’s animated WebP FAQ](https://developers.google.com/speed/webp/faq)
+The WebP export is **326.7 KiB (30.9%) smaller** in this example. [Play the comparison on the website](https://ixiehao.github.io/Any2WebP/#formats) · [Google’s animated WebP FAQ](https://developers.google.com/speed/webp/faq)
 
 ## Still images: WebP, PNG, or JPG
 

@@ -37,7 +37,7 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 | --- | --- | --- |
 | 应用截图 | [简体中文](../docs/assets/any2webp-zh-CN.png) · [English](../docs/assets/any2webp-en.png) · [日本語](../docs/assets/any2webp-ja.png) | 2480 × 1550 PNG，展示 Any2WebP v0.2.30 的无损转换。以青羽蜂鸟 GIF（1,083,393 字节）为源，导出的 WebP 为 748,866 字节。 |
 | 产品图标 | [Any2WebP 图标](../src-tauri/icons/icon.png) | 1024 × 1024 PNG。 |
-| 动图体积对照 | [青羽蜂鸟 GIF](../docs/assets/hummingbird-loop.gif) · [青羽蜂鸟 WebP](../docs/assets/hummingbird-loop.webp) | 同一组 480 × 336、60 帧的画面，3 秒无限循环。GIF 1,083,393 字节，有损 WebP 931,250 字节。WebP 保留翅膀的半透明渐变。 |
+| 动图体积对照 | [青羽蜂鸟 GIF](../docs/assets/hummingbird-loop.gif) · [无损 WebP](../docs/assets/hummingbird-loop.webp) | 使用截图中的文件。480 × 336，60 帧，3 秒无限循环，保留透明背景。GIF 1,083,393 字节，WebP 748,866 字节，体积减小 30.9%。 |
 | 规格说明 | Apple Silicon，macOS 26.0 或更新版本 | 视频需要 FFmpeg 和 ffprobe。图片转换可直接使用。 |
 | 开源说明 | [MIT 许可证](../LICENSE) · [第三方许可](../NOTICE.md) | 下载与源代码均指向官方 GitHub 仓库。 |
 

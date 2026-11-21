@@ -66,7 +66,6 @@ function page(key, t) {
   const featureCards = t.cards.map(([name, title, text]) =>
     '<article class="feature"><div class="feature-icon">' + icon(name) + '</div><h3>' + escape(title) +
     '</h3><p>' + escape(text) + '</p></article>').join("\n");
-  const decimal = new Intl.NumberFormat(t.lang, { minimumFractionDigits: 1, maximumFractionDigits: 1 });
   const signedDecimal = new Intl.NumberFormat(t.lang, {
     minimumFractionDigits: 1, maximumFractionDigits: 1, signDisplay: "exceptZero",
   });
@@ -78,12 +77,17 @@ function page(key, t) {
   const sample = (label, ext) => {
     const assetPath = prefix + "assets/hummingbird-loop." + ext;
     const bytes = demoSizes[ext];
+    const isMiB = bytes >= 1024 * 1024;
+    const fractionDigits = isMiB ? 2 : 1;
+    const size = new Intl.NumberFormat(t.lang, {
+      minimumFractionDigits: fractionDigits, maximumFractionDigits: fractionDigits,
+    }).format(bytes / (isMiB ? 1024 * 1024 : 1024)) + (isMiB ? " MiB" : " KiB");
     return '<figure><div class="demo-image"><img src="' + prefix +
       'assets/hummingbird-poster.png" data-motion="' + assetPath +
       '" width="480" height="336" loading="lazy" alt="' + escape(t.demoAlt) + '"></div><figcaption><a href="' +
       assetPath + '">' + label + '</a><span title="' +
       escape(new Intl.NumberFormat(t.lang).format(bytes) + " " + t.demoByteUnit) + '">' +
-      escape(decimal.format(bytes / 1024) + " KiB") + '</span></figcaption></figure>';
+      escape(size) + '</span></figcaption></figure>';
   };
   const stillRows = t.stillRows.map(([label, type, use]) =>
     '<div class="still-row"><dt>' + label + '</dt><dd><b>' + escape(type) + '</b><span>' + escape(use) + '</span></dd></div>').join("\n");
