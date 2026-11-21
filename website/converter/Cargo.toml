@@ -1,0 +1,21 @@
+[package]
+name = "any2webp-online"
+version = "0.1.0"
+edition = "2024"
+publish = false
+license = "MIT"
+
+[lib]
+crate-type = ["cdylib", "rlib"]
+
+[dependencies]
+gif = { version = "0.14", default-features = false, features = ["std"] }
+gif-dispose = "6"
+image = { version = "0.25", default-features = false, features = ["jpeg", "png"] }
+image-webp = "0.2"
+
+[profile.release]
+opt-level = 3
+lto = true
+strip = true
+panic = "abort"

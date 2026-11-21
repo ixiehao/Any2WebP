@@ -2,6 +2,7 @@
   "alloc-stdlib@0.3.0": ["alloc-stdlib-BSD-3-Clause.txt"],
   "block2@0.6.2": ["objc2-MIT.txt"],
   "dispatch2@0.3.1": ["objc2-MIT.txt"],
+  "gif-dispose@6.0.0": ["Apache-2.0.txt"],
   "objc2@0.6.5": ["objc2-MIT.txt"],
   "objc2-app-kit@0.3.2": ["objc2-MIT.txt"],
   "objc2-core-foundation@0.3.2": ["objc2-MIT.txt"],

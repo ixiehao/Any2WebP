@@ -5,6 +5,8 @@ on:
     branches: [main]
     paths:
       - 'website/**'
+      - 'Scripts/collect-rust-notices.py'
+      - 'docs/licenses/**'
       - 'docs/assets/**'
       - 'docs/THIRD-PARTY-NOTICES.txt'
       - 'engine/samples/planet.gif'
@@ -16,6 +18,8 @@ on:
   pull_request:
     paths:
       - 'website/**'
+      - 'Scripts/collect-rust-notices.py'
+      - 'docs/licenses/**'
       - 'docs/assets/**'
       - 'docs/THIRD-PARTY-NOTICES.txt'
       - 'engine/samples/planet.gif'
@@ -40,6 +44,13 @@ jobs:
       - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
         with:
           persist-credentials: false
+      - name: Build and test the browser converter
+        env:
+          RUSTUP_TOOLCHAIN: '1.100.0'
+        run: |
+          rustup toolchain install "$RUSTUP_TOOLCHAIN" --profile minimal --target wasm32-unknown-unknown
+          cargo test --manifest-path website/converter/Cargo.toml --locked
+          ./website/converter/build.sh
       - name: Build static site
         run: node website/build.mjs
       - name: Verify public pages
