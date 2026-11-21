@@ -1,8 +1,6 @@
 # Changelog
 
-## 0.2.29
-
-Unreleased.
+## 0.2.30
 
 - English. The native About window includes project information and links. Check for Updates and Check Dependencies are in the Help menu. Follow System is the first option in the Language menu.
 - 简体中文。原生「关于」窗口加入项目信息和链接。「帮助」菜单提供「检查更新…」和「检查依赖…」，「语言」菜单首项为「跟随系统」。
