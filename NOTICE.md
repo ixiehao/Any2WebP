@@ -11,4 +11,4 @@ Any2WebP source is available under the [MIT license](LICENSE). The included libr
 | FFmpeg and ffprobe | External video tools detected locally | Installed separately through Homebrew or by the user. [FFmpeg licensing](https://ffmpeg.org/legal.html) |
 | dmgbuild, ds-store, and mac-alias | Build-time DMG tools | Used only to build the DMG. See the versions in [dmg-requirements.txt](Scripts/dmg-requirements.txt). |
 
-The [bundled component notices](docs/THIRD-PARTY-NOTICES.txt) contain the native library and icon acknowledgments. The app icon and the synthetic animation at `engine/samples/planet.gif` are Any2WebP project assets. The sample contains no user media.
+The [bundled component notices](docs/THIRD-PARTY-NOTICES.txt) contain the native library and icon acknowledgments. The app icon, the synthetic animation at `engine/samples/planet.gif`, and the Teal Hummingbird demo are Any2WebP project assets.

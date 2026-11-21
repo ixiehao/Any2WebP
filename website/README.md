@@ -35,9 +35,9 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 
 | 素材 | 可复用文件 | 规格 |
 | --- | --- | --- |
-| 应用截图 | [简体中文](../docs/assets/any2webp-zh-CN.png) · [English](../docs/assets/any2webp-en.png) · [日本語](../docs/assets/any2webp-ja.png) | 2480 × 1550 PNG，展示三个工作入口和同步预览。 |
+| 应用截图 | [简体中文](../docs/assets/any2webp-zh-CN.png) · [English](../docs/assets/any2webp-en.png) · [日本語](../docs/assets/any2webp-ja.png) | 2480 × 1550 PNG，展示 Any2WebP v0.2.30 的无损转换。以青羽蜂鸟 GIF（1,083,393 字节）为源，导出的 WebP 为 748,866 字节。 |
 | 产品图标 | [Any2WebP 图标](../src-tauri/icons/icon.png) | 1024 × 1024 PNG。 |
-| 动图体积对照 | [GIF 原图](../engine/samples/planet.gif) · [无损 WebP 成品](../docs/assets/planet.webp) | 320 × 224，24 帧，保留透明度、帧延时和 3 次播放。GIF 47,269 字节，WebP 19,806 字节。该示例体积减少 58.1%。 |
+| 动图体积对照 | [青羽蜂鸟 GIF](../docs/assets/hummingbird-loop.gif) · [无损 WebP](../docs/assets/hummingbird-loop.webp) | 使用截图中的文件。480 × 336，60 帧，3 秒无限循环，保留透明背景。GIF 1,083,393 字节，WebP 748,866 字节，体积减小 30.9%。 |
 | 规格说明 | Apple Silicon，macOS 26.0 或更新版本 | 视频需要 FFmpeg 和 ffprobe。图片转换可直接使用。 |
 | 开源说明 | [MIT 许可证](../LICENSE) · [第三方许可](../NOTICE.md) | 下载与源代码均指向官方 GitHub 仓库。 |
 
@@ -45,5 +45,5 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 
 - 中文标题写「Any2WebP｜免费开源的 macOS WebP 图片转换软件」。
 - 中文描述写「在 Mac 上将 JPG、PNG、GIF 和视频片段批量转成 WebP 或 GIF。支持多图合成、视频剪切、动图帧编辑、目标体积和同步预览。」
-- 动图示例两侧共用尺寸并显示实际体积。页面用「此示例减少 58.1%」说明结果，具体压缩率随素材和设置变化。
+- 构建时从两份动图文件读取字节数，计算体积差值及百分比。替换素材时同步更新三语 README 里的数值和首帧海报。
 - 首屏使用对应语言的静态应用截图。动图对照放在后面的格式说明区，提供停播或按需播放入口。

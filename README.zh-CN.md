@@ -6,7 +6,9 @@
 
 [下载 macOS 版](https://ixiehao.github.io/Any2WebP/zh/download/) · [官网](https://ixiehao.github.io/Any2WebP/zh/) · [MIT 许可证](LICENSE)
 
-![Any2WebP 同步对比 GIF 原图与 WebP 成品](docs/assets/any2webp-zh-CN.png)
+![Any2WebP 同步对比青羽蜂鸟的 GIF 原图与无损 WebP 成品](docs/assets/any2webp-zh-CN.png)
+
+*下方对比使用截图中的 GIF 原图和无损 WebP 成品。*
 
 ## 三步完成转换
 
@@ -32,7 +34,13 @@
 | 体积 | 支持有损和无损，通常更省体积 | 简单图形已经够用，复杂画面可能更大或出现色阶 |
 | 适合 | 网页动图、透明贴图、视频片段 | 只收 GIF 的平台、旧软件和兼容性优先的场合 |
 
-同一段 [透明 GIF](engine/samples/planet.gif) 约 **46.2 KiB**，无损转成 [WebP](docs/assets/planet.webp) 后约 **19.3 KiB**，减少 **58.1%**。两者均为 24 帧，保留帧延时、透明度和 3 次播放。这是单个示例，实际体积取决于素材和设置。[Google WebP 动图说明](https://developers.google.com/speed/webp/faq)
+Any2WebP 将 **「青羽蜂鸟」** GIF 无损导出为 WebP，保留 60 帧、透明背景和 3 秒无限循环。
+
+| [GIF · 1.03 MiB](docs/assets/hummingbird-loop.gif) | [WebP · 731.3 KiB](docs/assets/hummingbird-loop.webp) |
+| --- | --- |
+| <img src="docs/assets/hummingbird-loop.gif" width="230" alt="青羽蜂鸟与珊瑚橙花，GIF 版"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="青羽蜂鸟与珊瑚橙花，WebP 版"> |
+
+本例的 WebP 成品比 GIF 小 **326.7 KiB（30.9%）**。[在官网播放对比](https://ixiehao.github.io/Any2WebP/zh/#formats) · [Google WebP 动图说明](https://developers.google.com/speed/webp/faq)
 
 ## 静图怎么选：WebP、PNG 和 JPG
 

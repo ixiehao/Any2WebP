@@ -54,6 +54,7 @@ h1 span { display: block; margin-top: 3px; color: var(--accent); }
 .source { font-size: .95rem; font-weight: 620; text-underline-offset: 4px; text-decoration: none; }
 .requirements { margin-top: 13px; color: var(--muted); font-size: .88rem; }
 .hero-image img { border: 1px solid #bfcee8; border-radius: 15px; box-shadow: 0 18px 42px #293d6826; }
+.hero-image figcaption { display: block; padding: 8px 2px 0; color: var(--muted); font-size: .8rem; }
 
 .section { padding-top: 65px; }
 .section > h2, .install h2 { font-size: clamp(1.65rem, 3vw, 2.25rem); letter-spacing: -.035em; }
@@ -76,16 +77,20 @@ h1 span { display: block; margin-top: 3px; color: var(--accent); }
   background-image: conic-gradient(#e2eaf8 25%, transparent 0 50%, #e2eaf8 0 75%, transparent 0);
   background-size: 20px 20px;
 }
-.demo-image img { width: min(100%, 170px); }
+.demo-image img { width: 100%; }
 figcaption { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 3px 10px; padding: 7px 10px; }
-figcaption span, .format-card .demo-note { font-size: .875rem; }
+figcaption a { font-weight: 700; text-underline-offset: 3px; }
+figcaption span, .format-card .demo-note, .format-card .demo-status { font-size: .875rem; }
 figcaption span { white-space: nowrap; color: var(--muted); }
 .format-card .demo-note { margin-top: 12px; }
+.demo-note strong { color: var(--accent); }
+.format-card .demo-status:empty { margin-top: 0; }
 .demo-play {
   margin-top: 12px; padding: 7px 11px; border: 1px solid #c6d5f0; border-radius: 7px;
   color: var(--accent); background: white; font: inherit; font-size: .93rem; font-weight: 650; cursor: pointer;
 }
-.demo-play:hover { background: #e8efff; }
+.demo-play:hover:not(:disabled) { background: #e8efff; }
+.demo-play:disabled { cursor: wait; opacity: .75; }
 .still-row { display: grid; grid-template-columns: 56px minmax(0, 1fr); gap: 16px; padding: 16px 0; border-bottom: 1px solid var(--line); }
 .still-row dt { font-weight: 740; color: var(--accent); }
 .still-row dd span { display: block; margin-top: 3px; color: var(--muted); }

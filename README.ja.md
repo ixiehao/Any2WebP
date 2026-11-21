@@ -6,7 +6,9 @@
 
 [macOS 版をダウンロード](https://ixiehao.github.io/Any2WebP/ja/download/) · [公式サイト](https://ixiehao.github.io/Any2WebP/ja/) · [MIT ライセンス](LICENSE)
 
-![Any2WebP で変換前の GIF と WebP の書き出し結果を比較](docs/assets/any2webp-ja.png)
+![Any2WebP で青緑のハチドリの GIF と可逆 WebP の書き出し結果を比較](docs/assets/any2webp-ja.png)
+
+*下の比較には、画面にある GIF と可逆 WebP を使っています。*
 
 ## 3 ステップで変換
 
@@ -32,7 +34,13 @@
 | 容量 | 可逆・非可逆圧縮が選べ、容量を抑えやすい | 単純な図に向く。複雑な画像では容量や色の段差が目立つことがある |
 | 主な用途 | ウェブ向け、透過素材、動画の一部 | GIF のみ対応するサービスや従来のソフトウェア |
 
-[透過 GIF](engine/samples/planet.gif) の **46.2 KiB** に対し、[可逆圧縮の WebP](docs/assets/planet.webp) は **19.3 KiB** で **58.1%** 小さくなりました。この例では、24 フレーム、表示時間、透明度、3 回再生を保持しています。結果は画像や設定によって変わります。[Google の WebP FAQ](https://developers.google.com/speed/webp/faq)
+Any2WebP で **「青緑のハチドリ」** の GIF を可逆 WebP に書き出し、60 フレーム、透明な背景、3 秒のループを維持しています。
+
+| [GIF · 1.03 MiB](docs/assets/hummingbird-loop.gif) | [WebP · 731.3 KiB](docs/assets/hummingbird-loop.webp) |
+| --- | --- |
+| <img src="docs/assets/hummingbird-loop.gif" width="230" alt="青緑のハチドリとコーラルオレンジの花、GIF 版"> | <img src="docs/assets/hummingbird-loop.webp" width="230" alt="青緑のハチドリとコーラルオレンジの花、WebP 版"> |
+
+この例の WebP は GIF より **326.7 KiB（30.9%）** 小さくなりました。[公式サイトで比較を再生](https://ixiehao.github.io/Any2WebP/ja/#formats) · [Google の WebP FAQ](https://developers.google.com/speed/webp/faq)
 
 ## 静止画の形式を選ぶ
 
