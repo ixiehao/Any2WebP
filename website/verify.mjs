@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import { readFile } from "node:fs/promises";
 import { resolve } from "node:path";
+import { guideScreens, guideScreenshotPath, guideScreenshotSize } from "./guide-screens.mjs";
 
 const output = resolve(process.argv[2] || "dist/website");
 const read = file => readFile(resolve(output, file), "utf8");
@@ -57,6 +58,18 @@ for (const [lang, route] of languages) {
       assert.ok(html.includes('href="../#formats"'));
       assert.ok(html.includes('href="../' + guides[page] + '"'));
       assert.doesNotMatch(html, /<script\b/);
+      const locale = route.slice(0, -1) || "en";
+      const shots = guideScreens[page.slice(0, -1)];
+      const images = [...html.matchAll(/<figure class="guide-shot"><a href="([^"]+)"><img src="([^"]+)"[^>]* alt="([^"]+)"><\/a><figcaption>([^<]+)<\/figcaption><\/figure>/g)];
+      assert.equal(images.length, shots.length);
+      for (const [index, [, link, src]] of images.entries()) {
+        const path = guideScreenshotPath(shots[index].id, locale);
+        assert.equal(new URL(link, url).href, site + path);
+        assert.equal(link, src);
+        const asset = await readFile(resolve(output, path));
+        assert.equal(asset.toString("ascii", 8, 12), "WEBP");
+      }
+      assert.ok(html.includes('width="' + guideScreenshotSize.width + '" height="' + guideScreenshotSize.height + '"'));
     } else {
       const hero = html.match(/<section class="hero"[^>]*>([\s\S]*?)<\/section>/)?.[1];
       const online = html.match(/<section class="container section online-converter" id="online"[^>]*>([\s\S]*?)<\/section>/)?.[1];

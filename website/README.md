@@ -34,6 +34,8 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 | 规格说明 | Apple Silicon，macOS 26.0 或更新版本 | 视频需要 FFmpeg 和 ffprobe。图片转换可直接使用。 |
 | 开源说明 | [MIT 许可证](../LICENSE) · [第三方许可](../NOTICE.md) | 下载与源代码均指向官方 GitHub 仓库。 |
 
+教程截图来自隔离的 WebKit 测试窗口，使用当前软件界面、编解码程序和青羽蜂鸟示例及其衍生素材。截图按语种保存于 `assets/tutorials/`，对应的替代文本和说明由 `guide-screens.mjs` 维护。点击截图可查看原尺寸。
+
 ### 页面信息
 
 - 构建时从两份动图文件读取字节数，以十进制 KB、MB 显示体积并计算百分比。替换素材时同步更新三语 README、首帧海报和播放帧图。
