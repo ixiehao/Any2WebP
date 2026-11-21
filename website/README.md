@@ -20,7 +20,7 @@ python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 
 ## 在线转换
 
-首页可一次将一张 JPG、静态 PNG 或 GIF 转为 WebP。浏览器把文件交给独立 Worker，使用 WebAssembly 转换，站点只提供程序资源。每个文件最多 16 MB、12.5 百万像素和 8192 px 长边。GIF 最多 240 帧且累计画布不超过 2400 万像素，支持透明度、帧延时与循环。转换保留解码后的画面，有限循环次数最多为 WebP 可表示的 65,535 次。
+首屏以 Mac 版下载为主入口。在线体验独占一栏，位于 Mac 版功能介绍之后，可一次将一张 JPG、静态 PNG 或 GIF 转为 WebP。浏览器把文件交给独立 Worker，使用 WebAssembly 转换，站点只提供程序资源。每个文件最多 16 MB、12.5 百万像素和 8192 px 长边。GIF 最多 240 帧且累计画布不超过 2400 万像素，支持透明度、帧延时与循环。转换保留解码后的画面，有限循环次数最多为 WebP 可表示的 65,535 次。
 
 `converter/Cargo.lock` 锁定浏览器转换器依赖。构建时发布 WebAssembly 和依赖许可证，可在 `ONLINE-CONVERTER-NOTICES.txt` 查阅。使用 `cargo test --manifest-path website/converter/Cargo.toml --locked` 验证编解码。
 
