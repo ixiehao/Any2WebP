@@ -10,17 +10,17 @@ node website/verify.mjs
 python3 -m http.server 8000 --bind 127.0.0.1 --directory dist/website
 ```
 
-`content.mjs` 保存三语文案，构建脚本复用项目截图、图标、测试动图和许可文件。官网按钮通过 GitHub `releases/latest/download/` 直接获取附件。发布新版本后更新 `build.mjs` 中的附件名并验证下载和 SHA-256 链接。三个语言的 `download/` 路径供 README 使用。
+`content.mjs` 保存三语文案，构建脚本复用项目截图、图标、测试动图和许可文件。Mac 正式版按钮通过 GitHub `releases/latest/download/` 直接获取附件，三个语言的 `download/` 路径指向该 DMG。Windows x64 预览版按钮直连对应的预发布附件，安装说明和 SHA-256 链接放在首页的 `#windows-preview`。更新版本时修改 `build.mjs` 中相应的附件名并验证下载和 SHA-256。
 
 ## 搜索入口
 
-首页围绕 Mac 本机批量转换、JPG／PNG／GIF 转 WebP 与视频转动图。四篇三语教程涵盖 GIF 转无损 WebP、按目标体积压缩 WebP、视频片段转动图和系列图片合成动图。操作步骤和适用边界由 `guides.mjs` 维护。首页、教程和语言切换均用静态链接。
+首页提供 Mac 正式版与 Windows x64 预览版，介绍本机批量转换、JPG／PNG／GIF 转 WebP 与视频转动图。四篇三语教程按 Mac 版操作编写，涵盖 GIF 转无损 WebP、按目标体积压缩 WebP、视频片段转动图和系列图片合成动图。操作步骤和适用边界由 `guides.mjs` 维护。首页、教程和语言切换均用静态链接。
 
 搜索页有独立标题、描述和 canonical，语言版本互相声明 `hreflang`，英文为默认。首页以 `SoftwareApplication` 描述免费应用、兼容性、截图和下载入口。Sitemap 收录首页与教程，下载跳转页标记为 `noindex`。域名根目录的 robots.txt 由 [个人主页仓库](https://github.com/ixiehao/ixiehao.github.io) 指向项目 Sitemap。构建后运行 `website/verify.mjs` 核对上述入口。
 
 ## 在线转换
 
-首屏以 Mac 版下载为主入口。在线体验独占一栏，位于 Mac 版功能介绍之后，可一次将一张 JPG、静态 PNG 或 GIF 转为 WebP。浏览器把文件交给独立 Worker，使用 WebAssembly 转换，站点只提供程序资源。每个文件最多 16 MB、12.5 百万像素和 8192 px 长边。GIF 最多 240 帧且累计画布不超过 2400 万像素，支持透明度、帧延时与循环。转换保留解码后的画面，有限循环次数最多为 WebP 可表示的 65,535 次。
+首屏以 Mac 版下载为主入口，另设 Windows x64 预览版下载。在线体验独占一栏，位于 Mac 版功能介绍之后，可一次将一张 JPG、静态 PNG 或 GIF 转为 WebP。浏览器把文件交给独立 Worker，使用 WebAssembly 转换，站点只提供程序资源。每个文件最多 16 MB、12.5 百万像素和 8192 px 长边。GIF 最多 240 帧且累计画布不超过 2400 万像素，支持透明度、帧延时与循环。转换保留解码后的画面，有限循环次数最多为 WebP 可表示的 65,535 次。
 
 `converter/Cargo.lock` 锁定浏览器转换器依赖。构建时发布 WebAssembly 和依赖许可证，可在 `ONLINE-CONVERTER-NOTICES.txt` 查阅。使用 `cargo test --manifest-path website/converter/Cargo.toml --locked` 验证编解码。
 

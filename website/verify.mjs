@@ -17,6 +17,7 @@ const pages = ["", ...Object.keys(guides)];
 const expectedUrls = languages.flatMap(([, route]) => pages.map(page => site + route + page));
 const titles = new Set();
 const descriptions = new Set();
+const windowsDownloads = new Set();
 
 const wasm = await readFile(resolve(output, "online-converter.wasm"));
 assert.equal(wasm.subarray(0, 8).toString("hex"), "0061736d01000000");
@@ -75,6 +76,15 @@ for (const [lang, route] of languages) {
       const online = html.match(/<section class="container section online-converter" id="online"[^>]*>([\s\S]*?)<\/section>/)?.[1];
       assert.ok(hero?.includes('href="#online"'));
       assert.ok(!hero.includes('type="file"'));
+      const windowsAsset = hero.match(/href="(https:\/\/github\.com\/ixiehao\/Any2WebP\/releases\/download\/v([0-9]+\.[0-9]+\.[0-9]+)-preview\/Any2WebP-\2-windows-preview_x64-setup\.exe)"/);
+      assert.ok(windowsAsset, url + " links to the Windows x64 preview installer");
+      const [, windowsExe, windowsVersion] = windowsAsset;
+      windowsDownloads.add(windowsExe);
+      const windowsDetails = html.match(/<article class="install" id="windows-preview">([\s\S]*?)<\/article>/)?.[1];
+      assert.ok(windowsDetails?.includes('href="' + windowsExe + '"'));
+      assert.ok(windowsDetails.includes('href="' + windowsExe + '.sha256"'));
+      assert.ok(windowsDetails.includes('href="https://github.com/ixiehao/Any2WebP/releases/tag/v' + windowsVersion + '-preview"'));
+      assert.ok(windowsDetails.includes("Windows 10 22H2") && windowsDetails.includes("Windows 11 21H2"));
       assert.ok(html.indexOf('id="features"') < html.indexOf('id="online"'));
       assert.match(online ?? "", /<p id="online-scope">[^<]+<\/p>/);
       assert.match(online, /aria-describedby="online-scope online-help"/);
@@ -91,4 +101,5 @@ for (const [lang, route] of languages) {
     }
   }
 }
-console.log("Verified " + expectedUrls.length + " indexable pages, reciprocal language links, and non-indexed download redirects.");
+assert.equal(windowsDownloads.size, 1, "all languages link to the same Windows installer");
+console.log("Verified " + expectedUrls.length + " indexable pages, reciprocal language links, and Mac and Windows download links.");

@@ -13,12 +13,15 @@ const site = "https://ixiehao.github.io/Any2WebP/";
 const repo = "https://github.com/ixiehao/Any2WebP";
 const asset = "Any2WebP-0.2.30-arm64.dmg";
 const dmg = repo + "/releases/latest/download/" + asset;
+const windowsVersion = "0.2.31";
+const windowsTag = "v" + windowsVersion + "-preview";
+const windowsExe = repo + "/releases/download/" + windowsTag + "/Any2WebP-" + windowsVersion + "-windows-preview_x64-setup.exe";
 const translations = Object.entries(locales);
 const guideEntries = Object.entries(guides);
 const pageUrl = (t, leaf = "") => site + t.route + leaf;
 const pathPrefix = (t, leaf = "") => "../".repeat(Number(Boolean(t.route)) + Number(Boolean(leaf))) || "./";
 const workspaceImage = key => "assets/workspace-" + key + ".png?v=hummingbird-kb";
-const versionedStyles = "style.css?v=7";
+const versionedStyles = "style.css?v=8";
 const demoFiles = {
   gif: "docs/assets/hummingbird-loop.gif",
   webp: "docs/assets/hummingbird-loop.webp",
@@ -117,6 +120,11 @@ function downloadButton(t) {
   return '<a class="button" href="' + dmg + '">' + escape(t.download) + '</a>';
 }
 
+function windowsDownload(t, secondary = false) {
+  return '<a class="button' + (secondary ? " button-secondary" : "") + '" href="' + windowsExe + '">' +
+    escape(t.windows.download) + '</a>';
+}
+
 function onlineConverter(t) {
   const messages = escape(JSON.stringify(t.online));
   return '  <section class="container section online-converter" id="online" aria-labelledby="online-title" data-messages="' + messages + '">' +
@@ -169,7 +177,8 @@ function page(key, t) {
     '  <section class="hero" aria-labelledby="title"><div class="hero-inner container">',
     '    <div class="hero-copy"><h1 id="title">' + escape(t.heroLead) + ' <span>' + escape(t.heroAccent) + '</span></h1>',
     '      <p>' + escape(t.heroDescription) + '</p>',
-    '      <div class="actions">' + cta + '<a class="text-action" href="#online">' + escape(t.online.shortTitle) + '</a></div>',
+    '      <div class="actions">' + cta + windowsDownload(t, true) +
+    '<a class="text-action" href="#online">' + escape(t.online.shortTitle) + '</a></div>',
     '      <div class="requirements">' + escape(t.requirement) + '</div>',
     '    </div>',
     '    <figure class="hero-image"><img src="' + prefix + screenshot + '" width="2480" height="1550" fetchpriority="high" alt="' + escape(t.screenshotAlt) +
@@ -193,7 +202,15 @@ function page(key, t) {
     '    <p>' + escape(t.installIntro) + '</p><p class="requirements">' + escape(t.previewNote) + '</p></div>',
     '    <div class="install-actions">' + cta + '<div class="downloads"><a href="' + repo + '/releases/latest">' + escape(t.release) +
     '</a><a href="' + dmg + '.sha256">' + escape(t.checksum) + '</a></div></div>',
-    '  </div></section>',
+    '  </div>',
+    '    <article class="install" id="windows-preview"><div><h2>' + escape(t.windows.heading) + '</h2>',
+    '      <p>' + escape(t.windows.features) + '</p><p class="requirements">' +
+    escape("v" + windowsVersion + " · " + t.windows.requirements) + '</p>',
+    '      <p class="requirements">' + escape(t.windows.installNote) + '</p></div>',
+    '      <div class="install-actions">' + windowsDownload(t) + '<div class="downloads"><a href="' +
+    repo + '/releases/tag/' + windowsTag + '">' + escape(t.release) + '</a><a href="' + windowsExe + '.sha256">' +
+    escape(t.checksum) + '</a></div></div>',
+    '    </article></section>',
     '</main>',
     footer(t),
     '<script type="module" src="' + prefix + 'demo.js?v=3"></script>',

@@ -4,7 +4,7 @@ English · [简体中文](README.zh-CN.md) · [日本語](README.ja.md)
 
 **A simple WebP image converter for Mac.** Turn photos, screenshots, animations, and video clips into WebP or GIF. Drag in your files, choose a format, and convert them quickly in a local batch. Any2WebP is free and open source under the MIT license.
 
-[Download for macOS](https://ixiehao.github.io/Any2WebP/download/) · [Website](https://ixiehao.github.io/Any2WebP/) · [MIT license](LICENSE)
+[Download for macOS](https://ixiehao.github.io/Any2WebP/download/) · [Windows x64 preview](https://ixiehao.github.io/Any2WebP/#windows-preview) · [Website](https://ixiehao.github.io/Any2WebP/) · [MIT license](LICENSE)
 
 ![Any2WebP comparing the Teal Hummingbird GIF and its lossless WebP export side by side](docs/assets/any2webp-en.png)
 
@@ -54,7 +54,7 @@ Google measured about 26% smaller files for lossless WebP versus PNG, and 25–3
 
 ## Install and use
 
-- Requires **Apple Silicon and macOS 26.0 or later**. Open the DMG and drag Any2WebP into Applications. Signing details are in the release notes. [GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
+- The Mac app requires **Apple Silicon and macOS 26.0 or later**. Open the DMG and drag Any2WebP into Applications. Signing details are in the release notes. [GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
 - Image conversion works out of the box. Video import uses FFmpeg and ffprobe. Open **Help → Check Dependencies** to view **Video Dependencies** and check or repair the tools.
 - Supported inputs include JPEG, PNG, WebP, GIF, APNG, HEIC/HEIF, AVIF, TIFF, BMP, ICO, PSD, JPEG 2000, JPEG XL, MP4, MOV, and WebM. Export to WebP or GIF.
 - English, Simplified Chinese, and Japanese are available. The app follows the system by default, with manual selection in the macOS **Language** menu.

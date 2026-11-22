@@ -4,7 +4,7 @@
 
 **Mac で使える、シンプルな WebP 画像変換アプリ。** 写真、スクリーンショット、アニメーション、動画の一部を WebP や GIF に変換できます。ファイルをドラッグして、形式を選んで一括変換。MIT ライセンスのオープンソースで、無料で使えます。
 
-[macOS 版をダウンロード](https://ixiehao.github.io/Any2WebP/ja/download/) · [公式サイト](https://ixiehao.github.io/Any2WebP/ja/) · [MIT ライセンス](LICENSE)
+[macOS 版をダウンロード](https://ixiehao.github.io/Any2WebP/ja/download/) · [Windows x64 プレビュー版](https://ixiehao.github.io/Any2WebP/ja/#windows-preview) · [公式サイト](https://ixiehao.github.io/Any2WebP/ja/) · [MIT ライセンス](LICENSE)
 
 ![Any2WebP で青緑のハチドリの GIF と可逆 WebP の書き出し結果を比較](docs/assets/any2webp-ja.png)
 
@@ -54,7 +54,7 @@ Google の比較では、可逆圧縮の WebP は PNG より約 26%、非可逆�
 
 ## インストールと対応形式
 
-- **Apple Silicon 搭載の Mac と macOS 26.0 以降**が必要です。DMG を開き、Any2WebP を「アプリケーション」にドラッグします。署名についてはリリースノートをご確認ください。[GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
+- Mac 版には **Apple シリコンと macOS 26.0 以降**が必要です。DMG を開き、Any2WebP を「アプリケーション」にドラッグします。署名についてはリリースノートをご確認ください。[GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
 - 画像の変換はそのまま使えます。動画の読み込みには FFmpeg と ffprobe が必要です。「ヘルプ → 依存ツールを確認…」から「動画の依存ツール」を開けます。Homebrew があればインストールや修復を行えます。
 - JPEG、PNG、WebP、GIF、APNG、HEIC/HEIF、AVIF、TIFF、BMP、ICO、PSD、JPEG 2000、JPEG XL、MP4、MOV、WebM などを読み込めます。書き出しは WebP または GIF です。
 - 英語、簡体字中国語、日本語に対応します。既定ではシステム設定に従い、macOS の「言語」メニューで変更できます。
