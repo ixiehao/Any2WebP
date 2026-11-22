@@ -1,10 +1,10 @@
 import { errorMessage, message, messageText, t } from "./i18n.js";
 import { readPreview } from "./timeline.js";
 import { frameBudgetBytes, sizeText } from "./byte-size.js";
+import { basename } from "./path.js";
 
 const maxFrames = 600;
 const maxDelay = 0xffffff;
-const basename = path => path.split("/").at(-1);
 
 export function sortFramePaths(paths) {
   const order = new Intl.Collator(undefined, { numeric: true, sensitivity: "base" });

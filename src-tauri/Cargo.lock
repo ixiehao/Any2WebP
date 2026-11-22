@@ -43,7 +43,7 @@ dependencies = [
 
 [[package]]
 name = "any2webp"
-version = "0.2.30"
+version = "0.2.31"
 dependencies = [
  "core-foundation",
  "core-foundation-sys",
@@ -58,6 +58,7 @@ dependencies = [
  "tauri-plugin-dialog",
  "tempfile",
  "time",
+ "windows-sys 0.61.2",
 ]
 
 [[package]]

@@ -1,5 +1,5 @@
 import assert from "node:assert/strict";
-import { edgePanSpeed, frameAt, moveTrimRange, playbackPosition, readPreview, readStampedPreview, timelineClock, timelineViewport, trimHandleLimits, trimPointerTime, zoomTimelineViewport } from "../app/timeline.js";
+import { comparisonFrameAt, edgePanSpeed, frameAt, moveTrimRange, playbackPosition, readPreview, readStampedPreview, timelineClock, timelineViewport, trimHandleLimits, trimPointerTime, zoomTimelineViewport } from "../app/timeline.js";
 
 const bytes = new Uint8Array(40 + 12 + 12);
 const header = new DataView(bytes.buffer);
@@ -18,6 +18,13 @@ assert.deepEqual(playbackPosition(279, 280, 2), { position: 279, finished: false
 assert.deepEqual(playbackPosition(281, 280, 2), { position: 1, finished: false });
 assert.deepEqual(playbackPosition(560, 280, 2), { position: 280, finished: true });
 assert.deepEqual(playbackPosition(560, 280, 0), { position: 0, finished: false });
+
+const comparisonSource = { revision: "original", count: 2, starts: [0, 85] };
+const roundedGif = { count: 2, starts: [0, 90] };
+assert.equal(comparisonFrameAt(comparisonSource, roundedGif, "original", 84), 0);
+assert.equal(comparisonFrameAt(comparisonSource, roundedGif, "original", 85), 1);
+assert.equal(comparisonFrameAt(comparisonSource, roundedGif, "different", 85), 0);
+assert.equal(comparisonFrameAt(comparisonSource, { count: 3, starts: [0, 90, 160] }, "original", 85), 0);
 console.log("Timeline: format, raw delays, stepping and loop termination passed");
 
 const revision = new TextEncoder().encode("1:2:3:4.5:6.7");

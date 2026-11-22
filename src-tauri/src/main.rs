@@ -1,24 +1,33 @@
+#![cfg_attr(all(windows, not(debug_assertions)), windows_subsystem = "windows")]
+
+#[cfg(target_os = "macos")]
 mod about;
+mod about_links;
 mod adjustment;
 mod frames;
+#[cfg_attr(windows, path = "localized_menu_windows.rs")]
 mod localized_menu;
 mod updates;
 mod video;
 mod video_tools;
+#[cfg(windows)]
+mod windows_platform;
 
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
     io::{self, Read, Seek, SeekFrom, Write},
-    os::unix::fs::MetadataExt,
     path::{Path, PathBuf},
-    process::{Command, Stdio},
+    process::Command,
     sync::{
         atomic::{AtomicBool, Ordering},
         Arc, Mutex,
     },
-    time::{Duration, Instant},
 };
+#[cfg(unix)]
+use std::{os::unix::fs::MetadataExt, process::Stdio, time::{Duration, Instant}};
+#[cfg(windows)]
+use windows_platform::run_process;
 use tauri::{ipc::Response, State};
 use tauri_plugin_dialog::{DialogExt, FilePath};
 use tempfile::NamedTempFile;
@@ -158,15 +167,20 @@ async fn choose_inputs(
     app: tauri::AppHandle, title: String, filter: String, media: Option<InputMedia>, single: Option<bool>,
 ) -> AppResult<Vec<String>> {
     worker(move || {
-        let images = [
-            "gif", "webp", "png", "apng", "jpg", "jpeg", "heic", "heif", "avif",
-            "tif", "tiff", "bmp", "ico", "psd", "jp2", "j2k", "jxl",
-        ];
-        let videos = ["mp4", "mov", "webm"];
-        let formats = match media {
-            Some(InputMedia::Images) => images.to_vec(),
-            Some(InputMedia::Videos) => videos.to_vec(),
-            None => images.into_iter().chain(videos).collect(),
+        let formats = {
+            #[cfg(windows)]
+            let images = ["jpg", "jpeg", "png", "gif", "webp"];
+            #[cfg(not(windows))]
+            let images = [
+                "gif", "webp", "png", "apng", "jpg", "jpeg", "heic", "heif", "avif",
+                "tif", "tiff", "bmp", "ico", "psd", "jp2", "j2k", "jxl",
+            ];
+            let videos = ["mp4", "mov", "webm"];
+            match media {
+                Some(InputMedia::Images) => images.to_vec(),
+                Some(InputMedia::Videos) => videos.to_vec(),
+                None => images.into_iter().chain(videos).collect::<Vec<_>>(),
+            }
         };
         let picker = app
             .dialog()
@@ -190,14 +204,16 @@ async fn choose_output(app: tauri::AppHandle, title: String) -> AppResult<Option
 
 fn codec_path() -> AppResult<PathBuf> {
     let exe = std::env::current_exe().map_err(|error| error.to_string())?;
-    let bundled = exe.with_file_name("any2webp-codec");
+    let bundled = exe.with_file_name(format!("any2webp-codec{}", std::env::consts::EXE_SUFFIX));
     if bundled.is_file() {
         return Ok(bundled);
     }
-    #[cfg(target_arch = "aarch64")]
+    #[cfg(all(not(windows), target_arch = "aarch64"))]
     let name = "any2webp-codec-aarch64-apple-darwin";
-    #[cfg(target_arch = "x86_64")]
+    #[cfg(all(not(windows), target_arch = "x86_64"))]
     let name = "any2webp-codec-x86_64-apple-darwin";
+    #[cfg(windows)]
+    let name = "any2webp-codec-x86_64-pc-windows-msvc.exe";
     let local = Path::new(env!("CARGO_MANIFEST_DIR")).join("binaries").join(name);
     if local.is_file() {
         return Ok(local);
@@ -234,6 +250,7 @@ fn read_process_pipe(
     }
 }
 
+#[cfg(unix)]
 fn process_has_exited(pid: libc::pid_t) -> io::Result<bool> {
     let mut info = std::mem::MaybeUninit::<libc::siginfo_t>::zeroed();
     // Preserve the leader's PID until any remaining members of its group are stopped.
@@ -253,6 +270,7 @@ fn process_has_exited(pid: libc::pid_t) -> io::Result<bool> {
     }
 }
 
+#[cfg(unix)]
 fn run_process(
     mut command: Command,
     tool: &str,
@@ -352,8 +370,11 @@ fn run_process(
     let status = child.wait();
     collected?;
     let status = status.map_err(|error| format!("ui:externalState:{error}"))?;
-    let [out, err] = output;
-    if status.success() {
+    process_result(output, tool, status.success())
+}
+
+fn process_result([out, err]: [Vec<u8>; 2], tool: &str, success: bool) -> AppResult<Vec<u8>> {
+    if success {
         return Ok(out);
     }
     let message = String::from_utf8_lossy(&err);
@@ -376,13 +397,22 @@ fn input_path(path: &str) -> AppResult<&Path> {
 }
 
 fn file_revision(path: &Path) -> AppResult<String> {
-    let info = fs::metadata(path).map_err(|_| "ui:sourceMissing")?;
-    if !info.is_file() {
-        return Err("ui:sourceMissing".into());
+    #[cfg(windows)]
+    {
+        let file = fs::File::open(path).map_err(|_| "ui:sourceMissing")?;
+        windows_platform::file_revision(&file).map_err(|_| "ui:sourceMissing".into())
     }
-    Ok(metadata_revision(&info))
+    #[cfg(unix)]
+    {
+        let info = fs::metadata(path).map_err(|_| "ui:sourceMissing")?;
+        if !info.is_file() {
+            return Err("ui:sourceMissing".into());
+        }
+        Ok(metadata_revision(&info))
+    }
 }
 
+#[cfg(unix)]
 fn metadata_revision(info: &fs::Metadata) -> String {
     format!("{}:{}:{}:{}.{}:{}.{}", info.dev(), info.ino(), info.len(),
         info.mtime(), info.mtime_nsec(), info.ctime(), info.ctime_nsec())
@@ -564,7 +594,8 @@ fn copy_noclobber(temp: &mut NamedTempFile, path: &Path, cancel: &AtomicBool) ->
 
 fn needs_copy_fallback(error: &io::Error) -> bool {
     // macOS has separate ENOTSUP (45) and EOPNOTSUPP (102) values.
-    error.kind() == io::ErrorKind::Unsupported || matches!(error.raw_os_error(), Some(45 | 102))
+    error.kind() == io::ErrorKind::Unsupported ||
+        (cfg!(target_os = "macos") && matches!(error.raw_os_error(), Some(45 | 102)))
 }
 
 fn publish(
@@ -654,7 +685,10 @@ fn verify_output(file: &mut fs::File, expected: u64, format: OutputFormat) -> Ap
 }
 
 fn verify_delivered(path: &Path, file: &mut fs::File, expected: u64, format: OutputFormat) -> AppResult<String> {
+    #[cfg(unix)]
     let revision = metadata_revision(&file.metadata().map_err(|_| "ui:outputRead")?);
+    #[cfg(windows)]
+    let revision = windows_platform::file_revision(file).map_err(|_| "ui:outputRead")?;
     verify_output(file, expected, format)?;
     if file_revision(path).as_deref() != Ok(revision.as_str()) {
         return Err("ui:outputChanged".into());
@@ -786,22 +820,33 @@ fn cancel(jobs: State<'_, Job>, job_id: u64) -> AppResult<()> {
 async fn open_output_folder(destination: Option<String>, source: Option<String>) -> AppResult<()> {
     worker(move || {
         let folder = export_directory(destination.as_deref(), source.as_deref().map(Path::new))?;
-        let mut command = Command::new("/usr/bin/open");
-        command.args(["-a", "Finder"]).arg(folder);
-        run_process(command, "Finder", 15, None).map(|_| ())
+        #[cfg(windows)]
+        return windows_platform::open_folder(folder);
+        #[cfg(unix)]
+        {
+            let mut command = Command::new("/usr/bin/open");
+            command.args(["-a", "Finder"]).arg(folder);
+            run_process(command, "Finder", 15, None).map(|_| ())
+        }
     }).await
 }
 
 #[tauri::command]
 async fn reveal(path: String) -> AppResult<()> {
     worker(move || {
-        let path = input_path(&path)?
-            .canonicalize()
-            .map_err(|error| format!("ui:outputRead:{error}"))?;
-        reveal_in_finder(&path)
+        #[cfg(windows)]
+        return windows_platform::reveal(input_path(&path)?);
+        #[cfg(unix)]
+        {
+            let path = input_path(&path)?
+                .canonicalize()
+                .map_err(|error| format!("ui:outputRead:{error}"))?;
+            reveal_in_finder(&path)
+        }
     }).await
 }
 
+#[cfg(unix)]
 fn reveal_in_finder(path: &Path) -> AppResult<()> {
     let mut command = Command::new("/usr/bin/open");
     command.arg("-R").arg(path);
@@ -809,17 +854,31 @@ fn reveal_in_finder(path: &Path) -> AppResult<()> {
 }
 
 fn main() {
-    tauri::Builder::default()
+    let builder = tauri::Builder::default();
+    #[cfg(target_os = "macos")]
+    let builder = builder.manage(about::AboutPanel::default());
+    #[cfg(windows)]
+    let builder = builder.setup(|app| {
+        use tauri::Manager;
+        if let Some(window) = app.get_webview_window("main") {
+            if let Err(error) = windows_platform::fit_startup_window(&window) {
+                eprintln!("Could not fit the main window on startup: {error}");
+            }
+        }
+        Ok(())
+    });
+    builder
         .manage(Job::default())
         .manage(PreviewJob::default())
         .manage(TrimPlaybackJob::default())
         .manage(NavigationJobs::default())
-        .manage(about::AboutPanel::default())
         .plugin(tauri_plugin_dialog::init())
         .on_menu_event(localized_menu::handle_menu_event)
         .invoke_handler(tauri::generate_handler![
             localized_menu::system_languages,
             localized_menu::set_menu_language,
+            #[cfg(windows)]
+            localized_menu::open_about_link,
             choose_inputs,
             choose_output,
             probe_video,
@@ -835,8 +894,9 @@ fn main() {
             open_output_folder,
             reveal,
             video_tools::check_video_dependencies,
+            #[cfg(not(windows))]
             video_tools::install_video_dependencies,
-            video_tools::open_homebrew,
+            video_tools::open_video_dependency_site,
             updates::check_for_updates,
             updates::open_update_page
         ])
@@ -847,6 +907,7 @@ fn main() {
 #[cfg(test)]
 mod tests {
     use super::*;
+    #[cfg(unix)]
     use std::thread;
 
     #[test]
@@ -863,6 +924,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(unix)]
     fn cancelling_a_preview_stops_the_worker_and_keeps_later_requests_available() {
         let jobs = Job::default();
         jobs.cancel(1).unwrap();
@@ -884,6 +946,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(unix)]
     fn subprocess_timeout_stops_children_with_inherited_pipes() {
         let mut command = Command::new("/bin/sh");
         command.args(["-c", "/bin/sleep 8 & wait"]);
@@ -893,6 +956,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(unix)]
     fn successful_subprocess_exit_does_not_wait_on_a_background_pipe() {
         let mut command = Command::new("/bin/sh");
         command.args(["-c", "printf ready; /bin/sleep 8 &"]);
@@ -902,6 +966,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(unix)]
     fn process_runner_drains_both_pipes_above_the_retention_limits() {
         let mut command = Command::new("/bin/sh");
         command.args(["-c", concat!(
@@ -913,6 +978,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(unix)]
     fn process_runner_preserves_only_codec_localization_keys() {
         let command = || {
             let mut command = Command::new("/bin/sh");
@@ -960,8 +1026,10 @@ mod tests {
 
     #[test]
     fn exclusive_copy_preserves_existing_files_and_cleans_up_cancellation() {
-        assert!(needs_copy_fallback(&io::Error::from_raw_os_error(45)));
-        assert!(needs_copy_fallback(&io::Error::from_raw_os_error(102)));
+        #[cfg(target_os = "macos")]
+        for code in [45, 102] {
+            assert!(needs_copy_fallback(&io::Error::from_raw_os_error(code)));
+        }
         let directory = tempfile::tempdir().unwrap();
         let mut temp = NamedTempFile::new_in(directory.path()).unwrap();
         fs::write(temp.path(), b"export bytes").unwrap();
@@ -978,6 +1046,35 @@ mod tests {
         assert_eq!(fs::read(&final_path).unwrap(), b"export bytes");
     }
 
+    #[cfg(windows)]
+    #[test]
+    #[ignore = "requires a large PNG fixture in ANY2WEBP_CANCEL_TEST_PNG"]
+    fn cancelling_an_active_export_cleans_its_staging_directory() {
+        use std::time::{Duration, Instant};
+
+        let source = std::env::var("ANY2WEBP_CANCEL_TEST_PNG").unwrap();
+        let original = fs::read(&source).unwrap();
+        let folder = tempfile::tempdir().unwrap();
+        let destination = folder.path();
+        let cancelled = Arc::new(AtomicBool::new(false));
+        std::thread::scope(|scope| {
+            let worker = scope.spawn(|| export(
+                source.clone(), Some(destination.to_str().unwrap().to_owned()), 1024,
+                OutputFormat::Webp, None, None, Default::default(), cancelled.clone(),
+            ));
+            let started = Instant::now();
+            while destination.read_dir().unwrap().next().is_none() {
+                assert!(!worker.is_finished() && started.elapsed() < Duration::from_secs(10));
+                std::thread::sleep(Duration::from_millis(10));
+            }
+            std::thread::sleep(Duration::from_millis(150));
+            cancelled.store(true, Ordering::Relaxed);
+            assert_eq!(worker.join().unwrap().err().as_deref(), Some("ui:cancelled"));
+        });
+        assert!(destination.read_dir().unwrap().next().is_none());
+        assert_eq!(fs::read(source).unwrap(), original);
+    }
+
     #[test]
     fn export_still_png_to_webp_and_gif() {
         // Two-pixel RGBA PNG containing opaque red and fully transparent pixels.
@@ -989,8 +1086,8 @@ mod tests {
             0x44, 0x0c, 0x0c, 0x00, 0x0c, 0xfc, 0x01, 0xff, 0x5c, 0xfd, 0x14, 0x95,
             0x00, 0x00, 0x00, 0x00, 0x49, 0x45, 0x4e, 0x44, 0xae, 0x42, 0x60, 0x82,
         ];
-        let folder = tempfile::tempdir().unwrap();
-        let source = folder.path().join("still.png");
+        let folder = tempfile::Builder::new().prefix("转换测试-").tempdir().unwrap();
+        let source = folder.path().join("透明 图层.png");
         fs::write(&source, png).unwrap();
         for format in [OutputFormat::Webp, OutputFormat::Gif] {
             let result = export(
@@ -1014,7 +1111,7 @@ mod tests {
     fn export_applies_the_frame_plan_and_checks_its_source_revision() {
         let temporary = tempfile::tempdir().unwrap();
         let source = temporary.path().join("original.gif");
-        fs::copy(Path::new(env!("CARGO_MANIFEST_DIR")).join("../engine/samples/planet.gif"), &source).unwrap();
+        fs::write(&source, include_bytes!("../../engine/samples/planet.gif")).unwrap();
         let edit = serde_json::json!({
             "width": 160, "height": 112, "plays": 3,
             "frames": [
@@ -1029,7 +1126,7 @@ mod tests {
             source.to_str().unwrap().to_owned(), None, 1024, OutputFormat::Gif, None, Some(plan),
             Default::default(), Arc::new(AtomicBool::new(false)),
         ).unwrap();
-        assert!(result.path.ends_with("/original-animation.gif"));
+        assert!(Path::new(&result.path).ends_with("original-animation.gif"));
         assert_eq!(result.source_revision, prepared.revision);
         assert_eq!(result.output.delays, [100, 500]);
         assert_eq!(result.output.plays, 3);
@@ -1039,6 +1136,7 @@ mod tests {
     }
 
     #[test]
+    #[cfg(unix)]
     fn export_gif_and_apng_to_optional_test_volume() {
         let Some(path) = std::env::var_os("ANY2WEBP_TEST_VOLUME") else { return };
         let temporary = tempfile::tempdir_in(path).unwrap();

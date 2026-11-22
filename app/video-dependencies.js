@@ -6,10 +6,16 @@ export function dependencyError(value) {
   return errorKeys.has(key) ? key : null;
 }
 
-export function bindVideoDependencies(invoke, setText, onReady) {
+export function bindVideoDependencies(invoke, setText, onReady, windows = false) {
   const $ = id => document.getElementById(id);
   const dialog = $("dependency-dialog");
   const panel = $("dependency-report");
+  const site = $("dependency-site");
+  const siteHint = $("dependency-site-hint");
+  if (windows) {
+    site.dataset.i18n = "dependencyFFmpegSite";
+    siteHint.dataset.i18n = "dependencyWindowsSetup";
+  }
   let report = null;
   let busy = null;
   let error = null;
@@ -26,9 +32,9 @@ export function bindVideoDependencies(invoke, setText, onReady) {
     $("dependency-detail").textContent = ready ? report.directory || "" : "";
     const needsTool = !busy && report && !ready;
     $("dependency-install").hidden = !needsTool || !report?.homebrewAvailable;
-    $("dependency-homebrew").hidden = !needsTool || Boolean(report?.homebrewAvailable);
+    site.hidden = !needsTool || Boolean(report?.homebrewAvailable);
     $("dependency-recheck").disabled = Boolean(busy);
-    $("dependency-brew-hint").hidden = !needsTool || Boolean(report?.homebrewAvailable);
+    siteHint.hidden = site.hidden;
     $("dependency-manual").hidden = !needsTool || !report?.homebrewAvailable;
     $("dependency-repair").hidden = report?.status === "missing";
     $("dependency-error").hidden = !error;
@@ -62,8 +68,8 @@ export function bindVideoDependencies(invoke, setText, onReady) {
 
   $("dependency-recheck").onclick = () => run("check");
   $("dependency-install").onclick = () => run("install");
-  $("dependency-homebrew").onclick = async () => {
-    try { await invoke("open_homebrew"); }
+  site.onclick = async () => {
+    try { await invoke("open_video_dependency_site"); }
     catch (failure) {
       error = errorMessage(failure);
       render();

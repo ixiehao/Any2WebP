@@ -508,7 +508,7 @@ mod tests {
             assert_eq!(result.video_settings, Some(settings));
             assert_eq!(result.output.delays, delays);
             assert_eq!(result.output.plays, 0);
-            assert!(result.path.ends_with("/双色片.webp"));
+            assert_eq!(Path::new(&result.path), source.with_extension("webp"));
             let inspected = run_codec(&[Path::new("inspect"), Path::new(&result.path)], None).unwrap();
             let output: ImageInfo = serde_json::from_slice(&inspected).unwrap();
             assert_eq!(output.bytes, fs::metadata(&result.path).unwrap().len());
@@ -521,7 +521,7 @@ mod tests {
                 source.to_str().unwrap().to_owned(), None, 1, OutputFormat::Gif, Some(settings), None,
                 ImageAdjustment::default(), Arc::new(AtomicBool::new(false)),
             ).unwrap();
-            assert!(gif.path.ends_with("/双色片.gif"));
+            assert_eq!(Path::new(&gif.path), source.with_extension("gif"));
             assert_eq!(gif.mode, "palette");
             assert_eq!(gif.target_met, Some(false));
             assert_eq!(gif.output.plays, 0);

@@ -10,6 +10,7 @@ use time::{format_description::well_known::Rfc2822, OffsetDateTime};
 // The public repository reserved by the release runbook. A 404 means no
 // public release is available yet, so the banner stays hidden.
 const REPOSITORY: &str = "ixiehao/Any2WebP";
+#[cfg(not(windows))]
 const LATEST_URL: &str = "https://github.com/ixiehao/Any2WebP/releases/latest";
 const API_URL: &str = "https://api.github.com/repos/ixiehao/Any2WebP/releases/latest";
 
@@ -132,8 +133,19 @@ struct GitHubRelease {
     html_url: String,
     draft: bool,
     prerelease: bool,
+    #[cfg(windows)]
+    assets: Vec<ReleaseAsset>,
 }
 
+#[cfg(windows)]
+#[derive(Deserialize)]
+struct ReleaseAsset {
+    name: String,
+    state: String,
+    size: u64,
+}
+
+#[cfg(any(not(windows), test))]
 fn interpret_latest(response: &Http<'_>, installed: [u64; 3], now: u64) -> Option<Check> {
     response.unavailable(now).or_else(|| match response.status {
         301 | 302 | 303 | 307 | 308 => classify(redirected_tag(response.header("Location")?)?, installed),
@@ -158,9 +170,16 @@ fn interpret_api(response: &Http<'_>, installed: [u64; 3], now: u64) -> Check {
     {
         return Check::Failed;
     }
+    #[cfg(windows)]
+    if !release.assets.iter().any(|asset| {
+        asset.state == "uploaded" && asset.size > 0 && asset.name.ends_with("_x64-setup.exe")
+    }) {
+        return Check::Unpublished;
+    }
     classify(&release.tag_name, installed).unwrap_or(Check::Failed)
 }
 
+#[cfg(any(not(windows), test))]
 fn resolve_latest(page: Option<Check>, api: impl FnOnce() -> Option<Check>) -> Check {
     match page {
         Some(status @ (Check::Available { .. } | Check::Current)) => status,
@@ -175,6 +194,10 @@ fn resolve_latest(page: Option<Check>, api: impl FnOnce() -> Option<Check>) -> C
 }
 
 fn request(url: &str, head: bool) -> Option<String> {
+    #[cfg(windows)]
+    let mut command = Command::new(std::path::PathBuf::from(std::env::var_os("SystemRoot")?)
+        .join("System32").join("curl.exe"));
+    #[cfg(not(windows))]
     let mut command = Command::new("/usr/bin/curl");
     command.args(["-q", "--silent", "--show-error", "--suppress-connect-headers",
         "--proto", "=https", "--connect-timeout", "5", "--max-time", "9",
@@ -195,22 +218,31 @@ pub async fn check_for_updates(app: AppHandle) -> AppResult<Check> {
     let installed = [current.major, current.minor, current.patch];
     worker(move || {
         let now = || SystemTime::now().duration_since(UNIX_EPOCH).unwrap_or_default().as_secs();
+        let api = || request(API_URL, false).and_then(|data| {
+            Some(interpret_api(&Http::parse(&data)?, installed, now()))
+        });
+        #[cfg(windows)]
+        let status = api().unwrap_or(Check::Failed);
+        #[cfg(not(windows))]
         let page = request(LATEST_URL, true)
             .and_then(|data| interpret_latest(&Http::parse(&data)?, installed, now()));
-        Ok(resolve_latest(page, || {
-            request(API_URL, false).and_then(|data| {
-                Some(interpret_api(&Http::parse(&data)?, installed, now()))
-            })
-        }))
+        #[cfg(not(windows))]
+        let status = resolve_latest(page, api);
+        Ok(status)
     }).await
 }
 
 #[tauri::command]
 pub async fn open_update_page(tag: String) -> AppResult<()> {
     let path = release_path(&tag).ok_or("ui:updateFailed")?;
+    let url = format!("https://github.com{path}");
+    #[cfg(windows)]
+    return worker(move || crate::windows_platform::open_url(&url)
+        .map_err(|_| "ui:updateFailed".into())).await;
+    #[cfg(not(windows))]
     worker(move || {
         let mut command = Command::new("/usr/bin/open");
-        command.arg(format!("https://github.com{path}"));
+        command.arg(url);
         run_process(command, "GitHub", 10, None).map(|_| ())
     }).await
 }
@@ -271,9 +303,29 @@ mod tests {
             let response = format!(concat!(
                 "HTTP/2 200\r\n\r\n",
                 "{{\"tag_name\":\"v0.2.14\",\"html_url\":\"https://{}/ixiehao/Any2WebP/releases/tag/v0.2.14\",",
-                "\"draft\":{},\"prerelease\":{}}}"
+                "\"draft\":{},\"prerelease\":{},",
+                "\"assets\":[{{\"name\":\"Any2WebP.Preview_0.2.14_x64-setup.exe\",\"state\":\"uploaded\",\"size\":1024}}]}}"
             ), host, draft, prerelease);
             assert_eq!(interpret_api(&Http::parse(&response).unwrap(), CURRENT, 100), expected);
+        }
+    }
+
+    #[cfg(windows)]
+    #[test]
+    fn windows_requires_an_uploaded_x64_installer() {
+        for (name, state, size) in [
+            ("Any2WebP_0.3.0_aarch64.dmg", "uploaded", 1024),
+            ("Any2WebP_0.3.0_arm64-setup.exe", "uploaded", 1024),
+            ("Any2WebP_0.3.0_x64-setup.exe", "starter", 1024),
+            ("Any2WebP_0.3.0_x64-setup.exe", "uploaded", 0),
+        ] {
+            let response = format!(concat!(
+                "HTTP/2 200\r\n\r\n",
+                "{{\"tag_name\":\"v0.3.0\",\"html_url\":\"https://github.com/ixiehao/Any2WebP/releases/tag/v0.3.0\",",
+                "\"draft\":false,\"prerelease\":false,",
+                "\"assets\":[{{\"name\":\"{}\",\"state\":\"{}\",\"size\":{}}}]}}"
+            ), name, state, size);
+            assert_eq!(interpret_api(&Http::parse(&response).unwrap(), CURRENT, 100), Check::Unpublished);
         }
     }
 }

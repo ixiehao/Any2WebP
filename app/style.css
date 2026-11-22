@@ -38,6 +38,8 @@ svg:not(.symbols) {
 }
 h1, h2, h3, p { margin: 0; }
 .brandbar { min-height: 47px; display: flex; align-items: center; justify-content: space-between; gap: 12px; padding: 0 14px 0 83px; border-bottom: 1px solid var(--line); background: var(--surface); }
+body[data-platform="windows"] { grid-template-rows: minmax(0, 1fr); }
+[data-platform="windows"] .brandbar { display: none; }
 .brand-identity { display: flex; align-items: center; gap: 7px; pointer-events: none; }
 .brand-identity h1 { font-size: 14px; font-weight: 700; }
 .app-version { padding-inline-start: 3px; color: var(--secondary); font-size: 11px; font-variant-numeric: tabular-nums; }
@@ -329,6 +331,11 @@ body.dragging .empty { background: var(--accent-light); }
 .update-error { color: var(--error); }
 .update-error:empty { display: none; }
 .dialog-actions { display: flex; justify-content: flex-end; flex-wrap: wrap; gap: 7px; margin-top: 15px; }
+.about-dialog { text-align: center; }
+.about-dialog > img { display: block; margin: 0 auto 10px; }
+.about-dialog > p { margin-top: 8px; }
+.about-links { display: flex; flex-wrap: wrap; justify-content: center; gap: 4px 12px; margin: 8px 0; }
+.about-dialog [data-about-link] { padding: 0; border: 0; color: var(--accent-text); background: none; text-decoration: underline; }
 .dependency-dialog { width: min(470px, calc(100% - 36px)); max-height: calc(100% - 36px); overflow: auto; }
 .dependency-report { margin-top: 13px; padding: 10px 12px; border: 1px solid var(--line); border-radius: 8px; background: var(--panel); font-size: 13px; line-height: 1.45; }
 .dependency-report[data-state="ready"] { color: #1c633e; background: #edf7f1; border-color: #c6e5d1; }

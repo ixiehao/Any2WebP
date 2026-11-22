@@ -14,6 +14,21 @@ open dist/Any2WebP.app
 
 构建会读取锁定的 Cargo 依赖，把第三方版本、许可原文及匹配版本的源码链接写入应用的 `Contents/Resources/RUST-NOTICES.txt`。项目 MIT 许可证、原生库和图标声明及 libwebp 专利授权也随包分发。遇到上游 crate 缺许可原文时，在 [许可补充目录](licenses/README.md)登记其锁定版本与来源。
 
+## Windows 10 x64 试用包
+
+使用 x64 Visual Studio 开发者命令行、Rust 1.100.0、Tauri CLI 2、CMake、Ninja、Clang 和 Python。将 libwebp 1.6.0 和 GIFLIB 6.1.3 的解压源码放在仓库外的依赖目录。
+
+```powershell
+$deps = 'C:/dependencies'
+./Scripts/build-windows.ps1 -WebpSource (Join-Path $deps 'libwebp-1.6.0') -GiflibSource (Join-Path $deps 'giflib-6.1.3')
+```
+
+安装器在 `dist/windows-preview/cargo/x86_64-pc-windows-msvc/release/bundle/nsis/`。镜像无 WebView2 时，安装器会下载微软运行时。试用版支持 JPG/JPEG、静态 PNG、GIF 和 WebP 批量导出与目标体积。GIF 和 WebP 的帧解析、编码、回读与预览时间轴共用原有实现，静态 JPG 和 PNG 由 Windows Imaging Component 解码。Windows 试用版采用独立应用标识和本地设置。
+
+多图合成可使用静态 JPG、PNG、GIF 和 WebP。MP4、MOV、WebM 转动图需要同一版本的 FFmpeg 和 ffprobe。Windows 从 WinGet 链接目录或 PATH 查找它们，可在「帮助 → 检查视频依赖」核对版本和目录。 [FFmpeg 下载](https://ffmpeg.org/download.html#build-windows)
+
+「帮助 → 检查更新」复用现有的版本比较和限流处理。Windows 手动查询同仓 GitHub Releases，最新正式版必须包含已上传的 `*_x64-setup.exe` 才会提示下载。
+
 ## 代码入口
 
 | 路径 | 职责 |

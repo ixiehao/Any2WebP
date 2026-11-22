@@ -1,0 +1,32 @@
+cmake_minimum_required(VERSION 3.21)
+project(Any2WebPCodec C)
+
+if(NOT WIN32)
+    message(FATAL_ERROR "Use a Windows x64 C toolchain.")
+endif()
+
+set(CMAKE_C_STANDARD 11)
+set(CMAKE_C_STANDARD_REQUIRED ON)
+set(CMAKE_MSVC_RUNTIME_LIBRARY "MultiThreaded")
+set(BUILD_SHARED_LIBS OFF)
+foreach(tool ANIM_UTILS CWEBP DWEBP GIF2WEBP IMG2WEBP VWEBP WEBPINFO WEBPMUX EXTRAS)
+    set(WEBP_BUILD_${tool} OFF CACHE BOOL "" FORCE)
+endforeach()
+add_subdirectory("${ANY2WEBP_WEBP_SOURCE}" webp EXCLUDE_FROM_ALL)
+
+set(giflib_sources dgif_lib.c egif_lib.c gifalloc.c gif_err.c gif_font.c
+    gif_hash.c openbsd-reallocarray.c quantize.c)
+list(TRANSFORM giflib_sources PREPEND "${ANY2WEBP_GIF_SOURCE}/")
+add_library(any2webp-giflib STATIC ${giflib_sources})
+target_include_directories(any2webp-giflib PUBLIC "${ANY2WEBP_GIF_SOURCE}")
+target_compile_definitions(any2webp-giflib PRIVATE _CRT_SECURE_NO_WARNINGS _CRT_NONSTDC_NO_WARNINGS)
+
+add_executable(any2webp-codec ../codec.c ../adjustment.c)
+target_compile_definitions(any2webp-codec PRIVATE _CRT_SECURE_NO_WARNINGS)
+target_link_libraries(any2webp-codec PRIVATE webp webpdemux libwebpmux any2webp-giflib windowscodecs ole32 oleaut32 uuid kernel32)
+if(MSVC)
+    target_compile_options(any2webp-codec PRIVATE /fp:strict)
+else()
+    target_compile_options(any2webp-codec PRIVATE -ffp-contract=off)
+    target_link_options(any2webp-codec PRIVATE -municode)
+endif()

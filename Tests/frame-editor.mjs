@@ -3,6 +3,8 @@ import { delayAt, frameBudget, sameFrameEdit, sortFramePaths } from "../app/fram
 
 assert.deepEqual(sortFramePaths(["/images/10.png", "/images/2.jpg", "/images/1.png"]),
   ["/images/1.png", "/images/2.jpg", "/images/10.png"]);
+assert.deepEqual(sortFramePaths(["C:\\甲 目录\\10.png", "C:\\乙 目录\\2.jpg", "D:\\素材\\1.png"]),
+  ["D:\\素材\\1.png", "C:\\乙 目录\\2.jpg", "C:\\甲 目录\\10.png"]);
 assert.equal(Array.from({ length: 12 }, (_, i) => delayAt(i, 12)).reduce((a, b) => a + b), 1000);
 assert.deepEqual([delayAt(0, 10), delayAt(2, 10), 500], [100, 100, 500]);
 assert.equal(frameBudget(1024, 1024, 128).fits, true);

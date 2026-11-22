@@ -1,6 +1,6 @@
 import { currentLanguage, currentPreference, errorMessage, message, messageText, savedLanguage, setLanguage, systemLanguage, t } from "./i18n.js";
 import { adjustImage, loadAdjustment } from "./adjustment.js";
-import { frameAt, playbackPosition, readStampedPreview } from "./timeline.js";
+import { comparisonFrameAt, frameAt, playbackPosition, readStampedPreview } from "./timeline.js";
 import { bindTrimEditor } from "./trim-editor.js";
 import { bindFrameEditor } from "./frame-editor.js";
 import { formatTimecode, videoSettingsError } from "./trim-time.js";
@@ -8,9 +8,11 @@ import { createUpdateChecker } from "./update-check.js";
 import { currentExport, planExports } from "./export-queue.js";
 import { bindVideoDependencies, dependencyError } from "./video-dependencies.js";
 import { bytesPerKB, fileLimitBytes, sizeText } from "./byte-size.js";
+import { basename } from "./path.js";
 
 const { app: tauriApp, core: { invoke }, event: appEvents, webview } = window.__TAURI__;
 const $ = (id) => document.getElementById(id);
+const windowsPreview = navigator.userAgentData?.platform === "Windows" || /\bWindows\b/.test(navigator.userAgent);
 const files = [];
 const queueRows = new Map();
 const clock = { scrub: $("scrub"), time: $("time"), position: 0, updatedAt: 0 };
@@ -39,7 +41,6 @@ let pickingInput = false;
 let elapsed = 0;
 let started = null;
 let raf = 0;
-const basename = (path) => path.split("/").at(-1) || path;
 const videoFields = ["clip-fps", "clip-edge"];
 const neutralQuality = Object.freeze({ shadows: 0, denoise: 0, sharpen: 0 });
 const qualityOptions = Object.keys(neutralQuality);
@@ -298,7 +299,9 @@ function draw(position, updateClock = true) {
   for (const player of Object.values(players)) {
     if (!player.media) continue;
     const { starts, info, count } = player.media;
-    const frame = frameAt(starts, position);
+    const frame = windowsPreview && player === players.after && player.result
+      ? comparisonFrameAt(players.before.media, player.media, player.result.sourceRevision, position)
+      : frameAt(starts, position);
     if (frame === player.drawn && player.drawnLocale === currentLanguage()) continue;
     if (frame !== player.drawn) player.context.putImageData(player.media.image(frame), 0, 0);
     player.drawn = frame;
@@ -785,7 +788,10 @@ function addPaths(paths, { trimVideo = false } = {}) {
   const known = new Map(files.filter(file => !file.synthetic).map(file => [file.path, file]));
   for (const path of paths) {
     const video = /\.(mp4|mov|webm)$/i.test(path);
-    if (!video && (trimVideo || !/\.(gif|webp|png|apng|jpe?g|heic|heif|avif|tiff?|bmp|ico|psd|jp2|j2k|jxl)$/i.test(path))) {
+    const image = windowsPreview
+      ? /\.(gif|webp|png|jpe?g)$/i.test(path)
+      : /\.(gif|webp|png|apng|jpe?g|heic|heif|avif|tiff?|bmp|ico|psd|jp2|j2k|jxl)$/i.test(path);
+    if (!video && (trimVideo || !image)) {
       skipped++;
       continue;
     }
@@ -824,7 +830,9 @@ async function pickAtEntry(pick, accept, needsIdle = false) {
 }
 
 function browse() {
-  return pickAtEntry(() => invoke("choose_inputs", { title: t("pickFiles"), filter: t("imageVideo") }), addPaths);
+  return pickAtEntry(() => invoke("choose_inputs", {
+    title: t("pickFiles"), filter: t("imageVideo"),
+  }), addPaths);
 }
 
 function browseVideo() {
@@ -999,7 +1007,10 @@ function renderUpdateState(state) {
   $("updates").hidden = !hasUpdate;
   $("open-update-page").hidden = !hasUpdate;
   if (hasUpdate) setText("update-badge", message("updateBadge", { version }));
-  const states = { checking: "updateChecking", current: "updateCurrent", unpublished: "updateUnpublished", failed: "updateFailed" };
+  const states = {
+    checking: "updateChecking", current: "updateCurrent", failed: "updateFailed",
+    unpublished: windowsPreview ? "updateWindowsUnpublished" : "updateUnpublished",
+  };
   let text = states[status] ? message(states[status]) : "";
   if (status === "available") text = message("updateAvailable", { version });
   if (status === "rateLimited") {
@@ -1111,7 +1122,7 @@ const showVideoDependencies = bindVideoDependencies(invoke, setText, () => {
     resetComparison(selected, { refreshVideo: true });
   }
   renderQueue();
-});
+}, windowsPreview);
 $("video-dependency").onclick = showVideoDependencies;
 
 $("play").onclick = () => {
@@ -1143,6 +1154,13 @@ webview.getCurrentWebview().onDragDropEvent(({ payload }) => {
 
 const menuEventsReady = appEvents.listen("app-menu-action", ({ payload }) => {
   if (payload === "add-files") browse();
+  else if (payload === "show-about") {
+    const dialog = $("about-dialog");
+    if (!dialog.open) {
+      setText("about-error", "");
+      dialog.showModal();
+    }
+  }
   else if (payload === "check-updates") showUpdateDialog(true);
   else if (payload === "video-dependencies") showVideoDependencies();
   else refreshLanguage(payload, true);
@@ -1155,12 +1173,32 @@ setText("before-message", message("loadingImage"));
 setText("after-message", message("noResult"));
 setDestination(null);
 outcome(null);
+if (windowsPreview) {
+  document.body.dataset.platform = "windows";
+  for (const button of $("about-dialog").querySelectorAll("[data-about-link]")) {
+    button.onclick = async () => {
+      setText("about-error", "");
+      try {
+        await invoke("open_about_link", { link: button.dataset.aboutLink, locale: currentLanguage() });
+      } catch {
+        setText("about-error", message("aboutLinkFailed"));
+      }
+    };
+  }
+  document.querySelector('[data-i18n="formatHint"]').dataset.i18n = "windowsFormatHint";
+  $("reveal").dataset.i18nAriaLabel = "windowsReveal";
+  $("reveal").querySelector("[data-i18n]").dataset.i18n = "windowsExplorer";
+}
 refreshLanguage(savedLanguage());
 updateSystemLanguage();
 loadAdjustment().catch(console.warn);
 const updateCheckerReady = tauriApp.getVersion().then(version => {
-  $("app-version").textContent = "v" + version;
-  $("app-version").hidden = false;
+  if (windowsPreview) {
+    $("about-version").textContent = "v" + version;
+  } else {
+    $("app-version").textContent = "v" + version;
+    $("app-version").hidden = false;
+  }
   setText("update-version", message("installedVersion", { version: "v" + version }));
   $("update-version").hidden = false;
   const checker = createUpdateChecker({
@@ -1172,11 +1210,13 @@ const updateCheckerReady = tauriApp.getVersion().then(version => {
       setItem: (key, value) => localStorage.setItem(key, value),
     },
   });
-  setTimeout(() => {
-    checker.checkAtLaunch();
-    window.addEventListener("focus", () => checker.check());
-  }, 800);
-  setInterval(() => checker.check(), 15 * 60 * 1000);
+  if (!windowsPreview) {
+    setTimeout(() => {
+      checker.checkAtLaunch();
+      window.addEventListener("focus", () => checker.check());
+    }, 800);
+    setInterval(() => checker.check(), 15 * 60 * 1000);
+  }
   return checker;
 }).catch(error => {
   console.warn(error);

@@ -4,6 +4,7 @@ import { edgePanSpeed, frameAt, moveTrimRange, readPreview, timelineViewport,
 import { clipFromPlayhead, formatTimecode, MAX_VIDEO_FPS, minimumClipMs, parseTimecode,
   stepSourceFrame, videoClipLimits, videoSettingsError } from "./trim-time.js";
 import { createVideoReader, filmstripIndex, paintFilmstrip } from "./video-navigation.js";
+import { basename } from "./path.js";
 
 const minimumPlaybackMs = minimumClipMs(MAX_VIDEO_FPS);
 
@@ -530,7 +531,7 @@ export function bindTrimEditor({ invoke, nextId, setText, settings, commit }) {
       session = { file, duration, outputFps, sourceFps: file.videoInfo.sourceFps || 30,
         clipLimits, range: { startMs, endMs }, position, viewport: timelineViewport(duration) };
       const name = $("trim-file-name");
-      name.textContent = file.path.split("/").at(-1);
+      name.textContent = basename(file.path);
       name.title = file.path;
       dialog.showModal();
       $("trim-limit").hidden = !clipLimits || clipLimits.maxMs < clipLimits.minMs;

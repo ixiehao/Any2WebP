@@ -2,13 +2,15 @@ use crate::{run_process, worker, AppResult};
 use serde::Serialize;
 use std::{
     collections::HashSet,
-    env, fs,
-    os::unix::fs::{MetadataExt, PermissionsExt},
+    env,
     path::{Path, PathBuf},
     process::Command,
     sync::{atomic::{AtomicBool, Ordering}, Mutex},
 };
+#[cfg(unix)]
+use std::{fs, os::unix::fs::{MetadataExt, PermissionsExt}};
 
+#[cfg(unix)]
 const PREFIXES: [&str; 2] = if cfg!(target_arch = "aarch64") {
     ["/opt/homebrew", "/usr/local"]
 } else {
@@ -16,6 +18,7 @@ const PREFIXES: [&str; 2] = if cfg!(target_arch = "aarch64") {
 };
 
 static VERIFIED: Mutex<Option<Verified>> = Mutex::new(None);
+#[cfg(unix)]
 static INSTALLING: Mutex<()> = Mutex::new(());
 
 #[derive(Clone, Debug, PartialEq, Eq)]
@@ -34,6 +37,15 @@ impl Tools {
 #[derive(Clone, Debug, PartialEq, Eq)]
 struct ToolFile {
     path: PathBuf,
+    revision: FileRevision,
+}
+
+#[cfg(windows)]
+type FileRevision = String;
+
+#[cfg(unix)]
+#[derive(Clone, Debug, PartialEq, Eq)]
+struct FileRevision {
     inode: u64,
     device: u64,
     modified: (i64, i64),
@@ -68,6 +80,7 @@ impl Issue {
     }
 }
 
+#[cfg(unix)]
 fn executable(path: &Path) -> Option<fs::Metadata> {
     let meta = fs::metadata(path).ok()?;
     (meta.is_file() && meta.permissions().mode() & 0o111 != 0).then_some(meta)
@@ -76,21 +89,26 @@ fn executable(path: &Path) -> Option<fs::Metadata> {
 impl ToolFile {
     fn locate(path: &Path) -> Result<Self, Issue> {
         let path = path.canonicalize().map_err(|_| Issue::Unusable)?;
-        let meta = executable(&path).ok_or(Issue::Unusable)?;
-        Ok(Self {
-            path,
-            inode: meta.ino(),
-            device: meta.dev(),
-            modified: (meta.mtime(), meta.mtime_nsec()),
-            changed: (meta.ctime(), meta.ctime_nsec()),
-            size: meta.len(),
-        })
+        #[cfg(windows)]
+        let revision = crate::file_revision(&path).map_err(|_| Issue::Unusable)?;
+        #[cfg(unix)]
+        let revision = {
+            let meta = executable(&path).ok_or(Issue::Unusable)?;
+            FileRevision {
+                inode: meta.ino(),
+                device: meta.dev(),
+                modified: (meta.mtime(), meta.mtime_nsec()),
+                changed: (meta.ctime(), meta.ctime_nsec()),
+                size: meta.len(),
+            }
+        };
+        Ok(Self { path, revision })
     }
 }
 
 fn pair(directory: &Path) -> Result<[ToolFile; 2], Issue> {
-    let ffmpeg = directory.join("ffmpeg");
-    let ffprobe = directory.join("ffprobe");
+    let ffmpeg = directory.join(format!("ffmpeg{}", env::consts::EXE_SUFFIX));
+    let ffprobe = directory.join(format!("ffprobe{}", env::consts::EXE_SUFFIX));
     match (ffmpeg.symlink_metadata().is_ok(), ffprobe.symlink_metadata().is_ok()) {
         (false, false) => return Err(Issue::Missing),
         (true, true) => {}
@@ -161,11 +179,19 @@ fn resolve_in(directories: impl IntoIterator<Item = PathBuf>, cancel: Option<&At
 }
 
 fn directories() -> Vec<PathBuf> {
+    #[cfg(unix)]
     let mut dirs: Vec<_> = PREFIXES.into_iter().flat_map(|prefix| {
         let prefix = Path::new(prefix);
         [prefix.join("opt/ffmpeg-full/bin"), prefix.join("opt/ffmpeg/bin"), prefix.join("bin")]
     }).collect();
+    #[cfg(unix)]
     dirs.push("/opt/local/bin".into());
+    #[cfg(windows)]
+    let mut dirs: Vec<_> = [("LOCALAPPDATA", "Microsoft/WinGet/Links"), ("ProgramFiles", "WinGet/Links")]
+        .into_iter()
+        .filter_map(|(key, path)| Some(PathBuf::from(env::var_os(key)?).join(path)))
+        .filter(|path| path.is_absolute())
+        .collect();
     if let Some(path) = env::var_os("PATH") {
         for directory in env::split_paths(&path).filter(|entry| entry.is_absolute()) {
             if !dirs.contains(&directory) {
@@ -213,6 +239,7 @@ pub(crate) fn find_tools(cancel: Option<&AtomicBool>) -> AppResult<Tools> {
     })
 }
 
+#[cfg(unix)]
 fn find_brew() -> Option<PathBuf> {
     PREFIXES.into_iter().map(|prefix| Path::new(prefix).join("bin/brew"))
         .find(|path| executable(path).is_some())
@@ -240,10 +267,14 @@ fn make_report(result: Result<&Verified, Issue>, homebrew_available: bool) -> Re
 }
 
 fn report() -> Report {
+    #[cfg(unix)]
     let homebrew_available = find_brew().is_some();
+    #[cfg(windows)]
+    let homebrew_available = false;
     resolve(true, None, |result| make_report(result, homebrew_available))
 }
 
+#[cfg(unix)]
 fn install_formula(brew: &Path, run: impl Fn(&Path, &[&str]) -> AppResult<Vec<u8>>) -> AppResult<()> {
     let installed = run(brew, &["list", "--versions", "ffmpeg"]).is_ok_and(|output| {
         String::from_utf8_lossy(&output).lines().any(|line| {
@@ -260,6 +291,7 @@ fn install_formula(brew: &Path, run: impl Fn(&Path, &[&str]) -> AppResult<Vec<u8
         })
 }
 
+#[cfg(unix)]
 fn ensure_ready(
     inspect: impl Fn() -> Report,
     brew: impl FnOnce() -> Option<PathBuf>,
@@ -279,6 +311,7 @@ pub(crate) async fn check_video_dependencies() -> AppResult<Report> {
     worker(|| Ok(report())).await
 }
 
+#[cfg(unix)]
 #[tauri::command]
 pub(crate) async fn install_video_dependencies() -> AppResult<Report> {
     worker(|| {
@@ -295,7 +328,11 @@ pub(crate) async fn install_video_dependencies() -> AppResult<Report> {
 }
 
 #[tauri::command]
-pub(crate) async fn open_homebrew() -> AppResult<()> {
+pub(crate) async fn open_video_dependency_site() -> AppResult<()> {
+    #[cfg(windows)]
+    return worker(|| crate::windows_platform::open_url("https://ffmpeg.org/download.html#build-windows")
+        .map_err(|_| "ui:dependencyCheckFailed".into())).await;
+    #[cfg(unix)]
     worker(|| {
         let mut command = Command::new("/usr/bin/open");
         command.arg("https://brew.sh/");
@@ -303,7 +340,7 @@ pub(crate) async fn open_homebrew() -> AppResult<()> {
     }).await
 }
 
-#[cfg(test)]
+#[cfg(all(test, unix))]
 mod tests {
     use super::*;
     use std::{cell::RefCell, os::unix::fs::symlink};

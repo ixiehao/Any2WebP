@@ -1,6 +1,8 @@
 """Media regressions with generated source pixels and independent RIFF parsing."""
 import json
+import os
 from pathlib import Path
+import platform
 import random
 import struct
 import subprocess
@@ -9,11 +11,14 @@ import unittest
 import zlib
 
 ROOT = Path(__file__).resolve().parents[1]
-TRIPLE = {
-    "arm64": "aarch64-apple-darwin",
-    "x86_64": "x86_64-apple-darwin",
-}[subprocess.check_output(["uname", "-m"], text=True).strip()]
-CODEC = ROOT / "src-tauri" / "binaries" / ("any2webp-codec-" + TRIPLE)
+if os.name == "nt":
+    codec_name = "any2webp-codec-x86_64-pc-windows-msvc.exe"
+else:
+    codec_name = "any2webp-codec-" + {
+        "arm64": "aarch64-apple-darwin",
+        "x86_64": "x86_64-apple-darwin",
+    }[platform.machine()]
+CODEC = Path(os.environ.get("ANY2WEBP_TEST_CODEC", ROOT / "src-tauri" / "binaries" / codec_name))
 PALETTE = bytes([0, 0, 0, 255, 0, 0, 0, 255, 0, 0, 0, 255])
 CLEAR, RED, GREEN, BLUE = (b"\0\0\0\0", b"\xff\0\0\xff", b"\0\xff\0\xff", b"\0\0\xff\xff")
 
@@ -112,7 +117,7 @@ def frame_edit(path, width, height, plays, frames):
 
 class CodecTests(unittest.TestCase):
     def setUp(self):
-        self.folder = tempfile.TemporaryDirectory(prefix="any2webp-tests-")
+        self.folder = tempfile.TemporaryDirectory(prefix="any2webp-试验-")
         self.addCleanup(self.folder.cleanup)
         self.path = Path(self.folder.name)
 

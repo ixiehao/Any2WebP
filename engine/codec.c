@@ -1,6 +1,3 @@
-#include <CoreFoundation/CoreFoundation.h>
-#include <CoreGraphics/CoreGraphics.h>
-#include <ImageIO/ImageIO.h>
 #include <errno.h>
 #include <fcntl.h>
 #include <gif_lib.h>
@@ -10,12 +7,23 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/stat.h>
-#include <unistd.h>
 #include <webp/decode.h>
 #include <webp/demux.h>
 #include <webp/encode.h>
 #include <webp/mux.h>
+#ifdef _WIN32
+#define WIN32_LEAN_AND_MEAN
+#define COBJMACROS
+#include <windows.h>
+#include <wincodec.h>
+#include <io.h>
+#else
+#include <CoreFoundation/CoreFoundation.h>
+#include <CoreGraphics/CoreGraphics.h>
+#include <ImageIO/ImageIO.h>
+#include <unistd.h>
 #include <zlib.h>
+#endif
 #include "adjustment.h"
 
 #define MAX_FILE_BYTES (64u * 1024 * 1024)
@@ -166,7 +174,39 @@ static void release(Animation *a) {
     for (unsigned i = 0; i < a->count; i++) free(a->frames[i].pixels);
 }
 
+#ifdef _WIN32
+static wchar_t *wide_path(const char *path) {
+    int length = MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path, -1, NULL, 0);
+    if (!length) fail("ui:invalidPath");
+    wchar_t *wide = allocate((size_t)length * sizeof(*wide));
+    if (!MultiByteToWideChar(CP_UTF8, MB_ERR_INVALID_CHARS, path, -1, wide, length)) {
+        fail("ui:invalidPath");
+    }
+    return wide;
+}
+#endif
+
+static FILE *file_open(const char *path, bool write) {
+#ifdef _WIN32
+    wchar_t *wide = wide_path(path);
+    FILE *file = _wfopen(wide, write ? L"wb" : L"rb");
+    free(wide);
+    return file;
+#else
+    return fopen(path, write ? "wb" : "rb");
+#endif
+}
+
 static WebPData read_input(const char *path) {
+#ifdef _WIN32
+    FILE *file = file_open(path, false);
+    if (!file) fail("ui:sourceMissing");
+    struct _stat64 info;
+    if (_fstat64(_fileno(file), &info) || (info.st_mode & _S_IFMT) != _S_IFREG ||
+        info.st_size <= 0 || info.st_size > MAX_FILE_BYTES) {
+        fail("ui:inputFileLimit");
+    }
+#else
     int fd = open(path, O_RDONLY | O_NONBLOCK);
     if (fd < 0) fail("ui:sourceMissing");
     struct stat info;
@@ -176,6 +216,7 @@ static WebPData read_input(const char *path) {
     }
     FILE *file = fdopen(fd, "rb");
     if (!file) fail("ui:sourceMissing");
+#endif
     size_t size = (size_t)info.st_size;
     uint8_t *bytes = allocate(size);
     if (fread(bytes, 1, size, file) != size || fgetc(file) != EOF) {
@@ -403,6 +444,12 @@ static void decode_webp(WebPData data, Animation *a, const OutputCheck *check) {
     WebPAnimDecoderDelete(decoder);
 }
 
+static uint32_t read_be32(const uint8_t *bytes) {
+    return ((uint32_t)bytes[0] << 24) | ((uint32_t)bytes[1] << 16) |
+           ((uint32_t)bytes[2] << 8) | bytes[3];
+}
+
+#ifndef _WIN32
 static int image_property(CFDictionaryRef props, CFStringRef key, int fallback) {
     if (!props) return fallback;
     CFNumberRef value = CFDictionaryGetValue(props, key);
@@ -446,11 +493,6 @@ static void draw_cgimage(Animation *a, CGImageRef image, uint32_t delay) {
     }
     uint8_t *pixels = render_cgimage(a, image, CGRectMake(0, 0, a->width, a->height));
     store_frame(a, next_frame(a), pixels, delay);
-}
-
-static uint32_t read_be32(const uint8_t *bytes) {
-    return ((uint32_t)bytes[0] << 24) | ((uint32_t)bytes[1] << 16) |
-           ((uint32_t)bytes[2] << 8) | bytes[3];
 }
 
 static void put_be32(uint8_t *bytes, uint32_t value) {
@@ -582,7 +624,7 @@ static const char *image_format(CFStringRef type) {
     fail("ui:unsupportedImage");
 }
 
-static void decode_imageio(WebPData data, Animation *a) {
+static void decode_still(WebPData data, Animation *a) {
     CGImageSourceRef source = image_source(data);
     WebPData normalized = {0};
     a->format = image_format(CGImageSourceGetType(source));
@@ -671,6 +713,10 @@ static void decode_imageio(WebPData data, Animation *a) {
     free((void *)normalized.bytes);
 }
 
+#else
+#include "codec_windows.h"
+#endif
+
 static void decode(WebPData data, Animation *a) {
     if (data.size >= 6 &&
         (!memcmp(data.bytes, "GIF87a", 6) || !memcmp(data.bytes, "GIF89a", 6))) {
@@ -679,7 +725,7 @@ static void decode(WebPData data, Animation *a) {
                !memcmp(data.bytes + 8, "WEBP", 4)) {
         decode_webp(data, a, NULL);
     } else {
-        decode_imageio(data, a);
+        decode_still(data, a);
     }
     if (!a->count) fail("ui:noFrames");
 }
@@ -909,7 +955,7 @@ static WebPData encode(WebPData source, const Animation *a, const Region *region
 }
 
 static void save_result(const char *path, WebPData result, const char *error) {
-    FILE *file = fopen(path, "wb");
+    FILE *file = file_open(path, true);
     if (!file) fail(error);
     bool complete = fwrite(result.bytes, 1, result.size, file) == result.size;
     if (fclose(file) || !complete) fail(error);
@@ -1192,7 +1238,7 @@ static void decode_video(char **args, Animation *a) {
     a->animated = true;
     a->decoded_limit = MAX_ANIMATION_DECODED;
     size_t bytes = frame_bytes(a);
-    FILE *file = fopen(args[2], "rb");
+    FILE *file = file_open(args[2], false);
     if (!file) fail("ui:incompleteVideo");
     uint8_t *rgba = allocate(bytes);
     for (unsigned frame = 0; ; frame++) {
@@ -1220,6 +1266,23 @@ static uint8_t *fit_frame(const Animation *canvas, Animation *source, unsigned i
         memcpy(copy, input, frame_bytes(canvas));
         return copy;
     }
+    double xscale = (double)canvas->width / source->width, yscale = (double)canvas->height / source->height;
+    double scale = xscale < yscale ? xscale : yscale;
+    unsigned width = (unsigned)(source->width * scale + .5), height = (unsigned)(source->height * scale + .5);
+    if (!width) width = 1;
+    if (!height) height = 1;
+    unsigned left = (canvas->width - width) / 2, top = (canvas->height - height) / 2;
+#ifdef _WIN32
+    uint8_t *pixels = calloc(1, frame_bytes(canvas));
+    if (!pixels) fail("ui:memoryLimit");
+    for (unsigned y = 0; y < height; y++) {
+        const uint8_t *row = input + (size_t)(y * source->height / height) * source->width * 4;
+        uint8_t *dest = pixels + ((size_t)(y + top) * canvas->width + left) * 4;
+        for (unsigned x = 0; x < width; x++) {
+            memcpy(dest + x * 4, row + (x * source->width / width) * 4, 4);
+        }
+    }
+#else
     CGDataProviderRef provider = CGDataProviderCreateWithData(NULL, input, frame_bytes(source), NULL);
     CGColorSpaceRef color = CGColorSpaceCreateWithName(kCGColorSpaceSRGB);
     if (!provider || !color) fail("ui:memoryLimit");
@@ -1228,14 +1291,10 @@ static uint8_t *fit_frame(const Animation *canvas, Animation *source, unsigned i
     CGColorSpaceRelease(color);
     CGDataProviderRelease(provider);
     if (!image) fail("ui:invalidCanvas");
-    double xscale = (double)canvas->width / source->width, yscale = (double)canvas->height / source->height;
-    double scale = xscale < yscale ? xscale : yscale;
-    unsigned width = (unsigned)(source->width * scale + .5), height = (unsigned)(source->height * scale + .5);
-    if (!width) width = 1;
-    if (!height) height = 1;
-    CGRect rect = CGRectMake((canvas->width - width) / 2, (canvas->height - height) / 2, width, height);
+    CGRect rect = CGRectMake(left, top, width, height);
     uint8_t *pixels = render_cgimage(canvas, image, rect);
     CGImageRelease(image);
+#endif
     return pixels;
 }
 
@@ -1246,7 +1305,7 @@ static uint32_t edit_word(FILE *file) {
 }
 
 static size_t decode_frame_edit(const char *path, Animation *canvas) {
-    FILE *file = fopen(path, "rb");
+    FILE *file = file_open(path, false);
     if (!file) fail("ui:invalidFrameEdit");
     if (edit_word(file) != 0x31463241u) fail("ui:invalidFrameEdit"); // A2F1
     unsigned width = edit_word(file), height = edit_word(file);
@@ -1302,7 +1361,7 @@ static size_t decode_frame_edit(const char *path, Animation *canvas) {
     return bytes;
 }
 
-int main(int argc, char **argv) {
+static int run_codec(int argc, char **argv) {
     unsigned strengths[3] = {0};
     if (argc >= 5 && !strcmp(argv[argc - 4], "--adjust")) {
         for (int i = 0; i < 3; i++) {
@@ -1349,3 +1408,26 @@ int main(int argc, char **argv) {
     free((void *)source.bytes);
     return EXIT_SUCCESS;
 }
+
+#ifdef _WIN32
+int wmain(int argc, wchar_t **wide) {
+    if (_setmode(_fileno(stdout), _O_BINARY) < 0) fail("ui:outputWrite");
+    char **args = allocate((size_t)argc * sizeof(*args));
+    for (int i = 0; i < argc; i++) {
+        int length = WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide[i], -1, NULL, 0, NULL, NULL);
+        if (!length) fail("ui:invalidPath");
+        args[i] = allocate((size_t)length);
+        if (!WideCharToMultiByte(CP_UTF8, WC_ERR_INVALID_CHARS, wide[i], -1, args[i], length, NULL, NULL)) {
+            fail("ui:invalidPath");
+        }
+    }
+    int result = run_codec(argc, args);
+    for (int i = 0; i < argc; i++) free(args[i]);
+    free(args);
+    return result;
+}
+#else
+int main(int argc, char **argv) {
+    return run_codec(argc, argv);
+}
+#endif

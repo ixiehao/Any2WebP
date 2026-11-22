@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.31
+
+Windows x64 preview.
+
+- English. Add batch conversion, image composition, and video trimming for WebP and GIF on Windows. Keep the source and exported animation on the same frame when GIF timing is rounded. The Help menu includes project information, update checks, and video dependency checks.
+- 简体中文。新增 Windows 批量转换、多图合成和视频裁剪，可导出 WebP 和 GIF。修复 GIF 延时取整导致的对比预览错帧。「帮助」菜单提供项目链接、检查更新和检查视频依赖。
+- 日本語。Windows で一括変換、画像の合成、動画のトリミングを行い、WebP と GIF に書き出せます。GIF の表示時間が丸められても比較プレビューのフレームが揃います。「ヘルプ」からプロジェクト情報、更新、動画の依存ツールを確認できます。
+
 ## 0.2.30
 
 - English. The native About window includes project information and links. Check for Updates and Check Dependencies are in the Help menu. Follow System is the first option in the Language menu.

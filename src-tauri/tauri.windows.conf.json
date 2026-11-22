@@ -1,0 +1,25 @@
+{
+  "productName": "Any2WebP Preview",
+  "identifier": "com.ixiehao.any2webp.preview",
+  "app": {
+    "windows": [
+      {
+        "label": "main",
+        "title": "Any2WebP Preview",
+        "width": 1240,
+        "height": 775,
+        "minWidth": 820,
+        "minHeight": 625
+      }
+    ]
+  },
+  "bundle": {
+    "targets": ["nsis"],
+    "icon": ["icons/icon.ico"],
+    "resources": ["../LICENSE", "../docs/THIRD-PARTY-NOTICES.txt", "../docs/licenses/libwebp-PATENTS.txt"],
+    "windows": {
+      "webviewInstallMode": { "type": "downloadBootstrapper" },
+      "nsis": { "installMode": "currentUser", "languages": ["English", "SimpChinese", "Japanese"] }
+    }
+  }
+}

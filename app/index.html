@@ -394,6 +394,24 @@
       </footer>
     </form>
   </dialog>
+  <dialog id="about-dialog" class="update-dialog about-dialog" aria-labelledby="about-heading">
+    <img src="icon.png" width="48" height="48" alt="">
+    <h2 id="about-heading">Any2WebP Preview</h2>
+    <p id="about-version" class="update-version"></p>
+    <p data-i18n="aboutDescription">免费开源的 WebP 图片转换工具</p>
+    <p><span data-i18n="aboutDeveloper">开发者</span> · <button type="button" data-about-link="developer">ixiehao</button></p>
+    <div class="about-links">
+      <button type="button" data-about-link="website" data-i18n="aboutWebsite">官网</button>
+      <button type="button" data-about-link="repository">GitHub</button>
+      <button type="button" data-about-link="feedback" data-i18n="aboutFeedback">反馈</button>
+      <button type="button" data-about-link="license" data-i18n="aboutLicense">MIT 开源许可证</button>
+    </div>
+    <p data-i18n="aboutWindowsLocalProcessing">图片和视频在 Windows 本机处理。</p>
+    <p id="about-error" class="update-error" role="status"></p>
+    <form method="dialog" class="dialog-actions">
+      <button class="button primary" type="submit" data-i18n="done" autofocus>完成</button>
+    </form>
+  </dialog>
   <dialog id="update-dialog" class="update-dialog" aria-labelledby="update-heading">
     <h2 id="update-heading" data-i18n="checkUpdates">检查更新</h2>
     <p id="update-version" class="update-version" hidden></p>
@@ -413,12 +431,12 @@
       <p id="dependency-state" role="status"></p>
       <code id="dependency-detail" hidden></code>
     </div>
-    <p id="dependency-brew-hint" class="update-note" data-i18n="dependencyNoBrew" hidden></p>
+    <p id="dependency-site-hint" class="update-note" data-i18n="dependencyNoBrew" hidden></p>
     <p id="dependency-manual" class="update-note" hidden><span data-i18n="dependencyManual">终端安装命令</span> <code>brew install ffmpeg</code><span id="dependency-repair" hidden> · <code>brew reinstall ffmpeg</code></span></p>
     <p id="dependency-error" class="update-error dependency-error" role="status" hidden></p>
     <form method="dialog" class="dialog-actions">
       <button id="dependency-recheck" class="button secondary" type="button" data-i18n="dependencyRecheck">重新检查</button>
-      <button id="dependency-homebrew" class="button secondary" type="button" data-i18n="dependencyHomebrew" hidden>Homebrew 官网</button>
+      <button id="dependency-site" class="button secondary" type="button" data-i18n="dependencyHomebrew" hidden>Homebrew 官网</button>
       <button id="dependency-install" class="button primary" type="button" data-i18n="dependencyInstall" hidden>安装或修复</button>
       <button class="button secondary" type="submit" data-i18n="done" autofocus>完成</button>
     </form>

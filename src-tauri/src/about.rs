@@ -1,3 +1,4 @@
+use crate::about_links::{website, DEVELOPER, ISSUES, LICENSE, REPOSITORY};
 use objc2::{runtime::AnyObject, MainThreadMarker};
 use objc2_app_kit::{
     NSAboutPanelOptionCredits, NSAboutPanelOptionVersion, NSApplication, NSColor, NSFont,
@@ -10,11 +11,6 @@ use objc2_foundation::{
 use serde::Deserialize;
 use std::sync::Mutex;
 use tauri::AppHandle;
-
-const REPOSITORY: &str = "https://github.com/ixiehao/Any2WebP";
-const DEVELOPER: &str = "https://github.com/ixiehao";
-const ISSUES: &str = "https://github.com/ixiehao/Any2WebP/issues/new/choose";
-const LICENSE: &str = "https://github.com/ixiehao/Any2WebP/blob/main/LICENSE";
 
 #[derive(Clone, Deserialize)]
 #[serde(rename_all = "camelCase")]
@@ -86,15 +82,10 @@ fn credits(labels: &Labels) -> objc2::rc::Retained<NSMutableAttributedString> {
             ));
         }
     };
-    let website = match labels.locale.as_str() {
-        "zh-CN" => "https://ixiehao.github.io/Any2WebP/zh/",
-        "ja" => "https://ixiehao.github.io/Any2WebP/ja/",
-        _ => "https://ixiehao.github.io/Any2WebP/",
-    };
     append(&format!("{}\n{} · ", labels.description, labels.developer), None);
     append("ixiehao", Some(DEVELOPER));
     append("\n", None);
-    append(&labels.website, Some(website));
+    append(&labels.website, Some(website(&labels.locale)));
     append(" · ", None);
     append("GitHub", Some(REPOSITORY));
     append(" · ", None);

@@ -9,6 +9,7 @@
 | [plist-MIT.txt](plist-MIT.txt) | [Repository license at the crate's recorded commit](https://github.com/ebarnard/rust-plist/blob/322f0497b513d8aadc129068724b3059782ecb16/LICENCE) |
 | [MPL-2.0.txt](MPL-2.0.txt) | [Mozilla Public License 2.0](https://www.mozilla.org/MPL/2.0/), from the locked `cssparser` package and used for `selectors` |
 | [tauri-MIT.txt](tauri-MIT.txt) | The locked `tauri` crate ships this text. Its source commit also produced the locked `tauri-plugin` crate. |
+| [webview2-rs-MIT.txt](webview2-rs-MIT.txt) | Upstream MIT license at the recorded [bindings commit](https://github.com/wravery/webview2-rs/blob/edc2caf886175ccaebe86078c9cfe1ae2a187328/LICENSE) and [macros commit](https://github.com/wravery/webview2-rs/blob/dffa41a8a46d3f5565eefbff2de57d38d399f158/LICENSE). |
 | [libwebp-PATENTS.txt](libwebp-PATENTS.txt) | [libwebp 1.6.0 WebM patent grant](https://github.com/webmproject/libwebp/blob/v1.6.0/PATENTS) |
 | [Apache-2.0.txt](Apache-2.0.txt) | [gif-dispose 6.0.0 manifest at the recorded commit](https://github.com/kornelski/image-gif-dispose/blob/e9a8e962ad58191e7aa2efc6cffa139c3f9242d2/Cargo.toml) offers Apache 2.0. The text comes from the locked `gif` crate. |
 

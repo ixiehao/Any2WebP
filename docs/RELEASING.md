@@ -36,6 +36,12 @@ dist/.dmg-tools/bin/python3 -m pip install -r Scripts/dmg-requirements.txt
 
 3. 核对 `dist/releases/vX.Y.Z-arm64/` 中的 DMG、SHA-256 和构建来源。脚本验证包内签名、镜像、标识、版本、arm64 架构、最低 macOS 版本和许可文件，公证流程另外验证票据和 Gatekeeper。用镜像中拖出的副本实测启动，导入 [测试动图](../engine/samples/planet.gif) 验证 WebP 和 GIF 导出与成品解码，并核对菜单及顶栏在三种语言下的状态。
 
+## Windows x64 预览包
+
+1. 从已核对的源码构建 [NSIS 试用安装包](DEVELOPMENT.md#windows-10-x64-试用包)。安装包的产品名为 Any2WebP Preview，应用标识为 `com.ixiehao.any2webp.preview`。核对 Cargo 与 Tauri 版本、程序及编解码器的 x64 架构和四份许可文件。
+2. 在实际支持的 Windows 版本验证安装、首次启动、转换、多图合成、视频剪切导出和卸载。缺少 WebView2 的环境应单独实测。视频转换依赖本机另装的同版本 FFmpeg 与 ffprobe。记录签名状态、安装提示和未验证项，并计算最终安装包的 SHA-256。
+3. 单独发布 Windows 预览包时使用新版本对应的预览标签与 Pre-release 状态。安装器名称保留产品名、版本、`x64-setup.exe` 和 Windows 标识，校验和与安装器一起准备。Windows 和 macOS 的正式应用目前共用 `releases/latest`，正式发布需同时核对两个平台预期的下载附件。
+
 ## 发布到 GitHub
 
 1. 得到本次公开发布授权后，确认受保护默认分支上的提交、构建来源和 Git tree 一致，在该提交创建 `vX.Y.Z` 标记。标记与已公开产物保留原版本，修复使用新版本。

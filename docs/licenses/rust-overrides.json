@@ -15,5 +15,8 @@
   "objc2-web-kit@0.3.2": ["objc2-MIT.txt"],
   "plist@1.10.4": ["plist-MIT.txt"],
   "selectors@0.38.0": ["MPL-2.0.txt"],
-  "tauri-plugin@2.7.4": ["tauri-MIT.txt"]
+  "tauri-plugin@2.7.4": ["tauri-MIT.txt"],
+  "webview2-com@0.39.1": ["webview2-rs-MIT.txt"],
+  "webview2-com-macros@0.8.1": ["webview2-rs-MIT.txt"],
+  "webview2-com-sys@0.39.1": ["webview2-rs-MIT.txt"]
 }

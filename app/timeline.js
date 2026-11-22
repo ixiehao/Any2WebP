@@ -60,6 +60,12 @@ export function frameAt(starts, time) {
   return low;
 }
 
+export function comparisonFrameAt(source, output, sourceRevision, position) {
+  // GIF can round frame boundaries to different timestamps even when every frame is preserved.
+  const matchingSource = sourceRevision && source?.revision === sourceRevision && source.count === output.count;
+  return frameAt(matchingSource ? source.starts : output.starts, position);
+}
+
 export function playbackPosition(elapsed, duration, plays) {
   if (!duration) return { position: 0, finished: true };
   if (plays && elapsed >= duration * plays) return { position: duration, finished: true };
