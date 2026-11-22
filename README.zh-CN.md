@@ -4,7 +4,7 @@
 
 **简洁好用的 WebP 图片转换软件。** 把照片、截图、动图和视频片段转成 WebP 或 GIF。拖入文件，选好导出格式，点一下即可在 Mac 上快速完成批量转换。完全免费，采用 MIT 许可证开源。
 
-[下载 macOS 版](https://ixiehao.github.io/Any2WebP/zh/download/) · [官网](https://ixiehao.github.io/Any2WebP/zh/) · [MIT 许可证](LICENSE)
+[下载 macOS 版](https://ixiehao.github.io/Any2WebP/zh/download/) · [Windows x64 预览版](https://ixiehao.github.io/Any2WebP/zh/#windows-preview) · [官网](https://ixiehao.github.io/Any2WebP/zh/) · [MIT 许可证](LICENSE)
 
 ![Any2WebP 同步对比青羽蜂鸟的 GIF 原图与无损 WebP 成品](docs/assets/any2webp-zh-CN.png)
 
@@ -54,7 +54,7 @@ Google 的测试中，无损 WebP 比 PNG 小约 26%，有损 WebP 在相近 SSI
 
 ## 安装与格式支持
 
-- 需要 **Apple Silicon Mac 和 macOS 26.0 或更新版本**。打开 DMG，将 Any2WebP 拖入「应用程序」。安装包的签名状态见发布说明。[GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
+- Mac 版需要 **Apple 芯片和 macOS 26.0 或更新版本**。打开 DMG，将 Any2WebP 拖入「应用程序」。安装包的签名状态见发布说明。[GitHub Releases](https://github.com/ixiehao/Any2WebP/releases/latest)
 - 图片转换可直接使用。处理视频需要 FFmpeg 和 ffprobe，选择「帮助 → 检查依赖…」打开「视频依赖」。已有 Homebrew 时可按需安装或修复。
 - 常见输入包括 JPG、PNG、WebP、GIF、APNG、HEIC/HEIF、AVIF、TIFF、BMP、ICO、PSD、JPEG 2000、JPEG XL、MP4、MOV 和 WebM。导出支持 WebP 和 GIF。
 - 界面支持简体中文、英语和日语，默认跟随系统，可在 macOS 菜单栏的「语言」菜单切换。

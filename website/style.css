@@ -51,6 +51,8 @@ h1 span { display: block; margin-top: 3px; color: var(--accent); }
   color: white; font-size: .98rem; font-weight: 690; text-align: center; text-decoration: none;
 }
 .button:hover { background: var(--accent-hover); color: white; }
+.button-secondary { border: 1px solid #bfcee8; background: white; color: var(--accent-hover); }
+.button-secondary:hover { background: #edf3ff; color: var(--accent-hover); }
 .text-action { font-size: .95rem; font-weight: 620; text-underline-offset: 4px; text-decoration: none; }
 .requirements { margin-top: 13px; color: var(--muted); font-size: .88rem; }
 .hero-image img { border: 1px solid #bfcee8; border-radius: 15px; box-shadow: 0 18px 42px #293d6826; }
@@ -101,6 +103,7 @@ figcaption span { white-space: nowrap; color: var(--muted); }
   padding: 32px; border: 1px solid var(--line); border-radius: 16px; background: #eaf1ff;
 }
 .install p { max-width: 63ch; margin-top: 10px; color: var(--muted); }
+.install + .install { margin-top: 16px; }
 .install-actions { justify-self: end; }
 .downloads { display: flex; flex-wrap: wrap; gap: 10px 14px; margin-top: 10px; font-size: .875rem; }
 .downloads a { text-underline-offset: 4px; }
