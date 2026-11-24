@@ -1,5 +1,13 @@
 # Changelog
 
+## 0.2.32
+
+Windows x64 preview.
+
+- English. Export a diagnostic report from Help or from a conversion failure. Review it before saving a local text file. The report includes the failing step and a fixed error code. It omits file names, paths, media, and raw logs.
+- 简体中文。可从「帮助」菜单或转换失败提示打开诊断报告，预览后选择保存为本地文本。报告包含失败阶段和固定错误码，不写入文件名、路径、媒体内容或原始日志。
+- 日本語。「ヘルプ」または変換失敗の通知から診断レポートをプレビューし、ローカルのテキストファイルとして保存できます。失敗した処理段階と定義済みのエラーコードが含まれ、ファイル名、パス、メディアの内容、生ログは含まれません。
+
 ## 0.2.31
 
 Windows x64 preview.

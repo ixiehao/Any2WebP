@@ -30,6 +30,7 @@ pub struct MenuLabels {
     help: String,
     check_updates: String,
     dependency_check: String,
+    diagnostic_report: String,
 }
 
 #[tauri::command]
@@ -46,6 +47,7 @@ pub fn set_menu_language(app: AppHandle, labels: MenuLabels, preference: String)
         let help = Submenu::with_items(&app, &labels.help, true, &[
             &MenuItem::with_id(&app, "check-updates", &labels.check_updates, true, None::<&str>)?,
             &MenuItem::with_id(&app, "video-dependencies", &labels.dependency_check, true, None::<&str>)?,
+            &MenuItem::with_id(&app, "diagnostic-report", &labels.diagnostic_report, true, None::<&str>)?,
             &MenuItem::with_id(&app, "show-about", &labels.about, true, None::<&str>)?,
         ])?;
         app.set_menu(Menu::with_items(&app, &[&file, &language, &help])?).map(|_| ())
@@ -78,7 +80,7 @@ pub fn open_about_link(link: AboutLink, locale: String) -> AppResult<()> {
 pub fn handle_menu_event(app: &AppHandle, event: MenuEvent) {
     let id: &str = event.id().as_ref();
     if let Some(action) = id.strip_prefix("language:")
-        .or_else(|| matches!(id, "add-files" | "show-about" | "check-updates" | "video-dependencies").then_some(id))
+        .or_else(|| matches!(id, "add-files" | "show-about" | "check-updates" | "video-dependencies" | "diagnostic-report").then_some(id))
     {
         let _ = app.emit("app-menu-action", action);
     }

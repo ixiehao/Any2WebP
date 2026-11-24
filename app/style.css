@@ -301,6 +301,7 @@ body.dragging .empty { background: var(--accent-light); }
 .status:empty { display: none; }
 .status.warning { color: var(--warning); }
 .status.error { color: var(--error); }
+.failure-diagnostic { align-self: start; margin: 0 9px 9px; }
 
 #count { padding: 3px 7px; border-radius: 5px; color: var(--accent-text); background: var(--accent-light); font-size: 11px; }
 .inspector { min-width: 0; min-height: 0; display: grid; grid-template-rows: minmax(0, 1fr) auto; border-left: 1px solid var(--line); background: var(--panel); }
@@ -326,6 +327,9 @@ body.dragging .empty { background: var(--accent-light); }
 .update-dialog { width: min(380px, calc(100% - 36px)); padding: 19px; color: var(--text); background: var(--surface); border: 1px solid var(--line); border-radius: 12px; box-shadow: 0 12px 40px #16253d26; }
 .update-dialog::backdrop { background: #16253d36; }
 .update-dialog h2 { font-size: 16px; }
+.diagnostic-dialog { width: min(440px, calc(100% - 36px)); }
+.diagnostic-text { max-height: min(360px, 50vh); overflow: auto; margin: 10px 0 0; padding: 10px; border: 1px solid var(--line); border-radius: 6px; background: var(--panel); white-space: pre-wrap; overflow-wrap: anywhere; }
+.diagnostic-state:empty { display: none; }
 .update-version { margin-top: 8px; font-size: 13px; font-variant-numeric: tabular-nums; }
 .update-note, .update-error { margin-top: 8px; color: var(--secondary); font-size: 12px; line-height: 1.5; }
 .update-error { color: var(--error); }

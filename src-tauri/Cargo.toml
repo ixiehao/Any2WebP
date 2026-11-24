@@ -1,6 +1,6 @@
 [package]
 name = "any2webp"
-version = "0.2.31"
+version = "0.2.32"
 edition = "2021"
 description = "Local WebP and GIF conversion for macOS"
 repository = "https://github.com/ixiehao/Any2WebP"
@@ -27,4 +27,4 @@ objc2-app-kit = { version = "0.3", default-features = false, features = ["NSAppl
 objc2-foundation = { version = "0.3", default-features = false, features = ["NSAttributedString", "NSDictionary", "NSString", "NSURL"] }
 
 [target.'cfg(windows)'.dependencies]
-windows-sys = { version = "0.61", features = ["Win32_Globalization", "Win32_Storage_FileSystem", "Win32_System_Com", "Win32_System_Pipes", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging"] }
+windows-sys = { version = "0.61", features = ["Wdk_System_SystemServices", "Win32_Globalization", "Win32_Storage_FileSystem", "Win32_System_Com", "Win32_System_Pipes", "Win32_System_SystemInformation", "Win32_UI_Shell", "Win32_UI_Shell_Common", "Win32_UI_WindowsAndMessaging"] }

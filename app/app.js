@@ -30,6 +30,7 @@ let selected = null;
 let destination = null;
 let batch = null;
 let batchReport = null;
+let latestDiagnostic = null;
 let nextJob = Date.now() * 1000;
 let nextFile = 0;
 let previewRequest = null;
@@ -76,7 +77,7 @@ function refreshLanguage(choice, save = false) {
     "Cut", "Copy", "Paste", "SelectAll", "View", "Window", "Minimize", "Zoom", "Close", "FullScreen", "Help", "Language"];
   const labels = { ...Object.fromEntries(menuKeys.map(key => [key, t("menu" + key)])),
     AddFiles: t("addFiles"), CheckUpdates: t("checkUpdates"), DependencyCheck: t("checkDependencies"),
-    FollowSystem: t("followSystem"),
+    FollowSystem: t("followSystem"), DiagnosticReport: t("exportDiagnosticReport"),
     AboutDetails: {
       locale,
       description: t("aboutDescription"),
@@ -102,6 +103,7 @@ async function updateSystemLanguage() {
 function setStatus(message, tone = "") {
   setText("status", message);
   $("status").className = "status " + tone;
+  $("failure-diagnostic").hidden = true;
 }
 
 function icon(name) {
@@ -254,6 +256,8 @@ function renderExportAction(settings = exportSettings()) {
   notice.hidden = !status;
   notice.classList.toggle("warning", !batch && Boolean(batchReport?.warning));
   if (notice.textContent !== messageText(status)) setText(notice, status);
+  $("batch-diagnostic").hidden = !windowsPreview || Boolean(batch) || !batchReport?.failed ||
+    !$("failure-diagnostic").hidden;
   const progress = $("batch-progress");
   progress.hidden = !batch;
   if (batch) {
@@ -274,6 +278,7 @@ const fileName = file => file.synthetic ? basename(file.path).replace(/\.[^.]*$/
 
 function outcome(file) {
   setStatus(file?.error, file?.error ? "error" : "");
+  $("failure-diagnostic").hidden = !windowsPreview || !file?.error;
 }
 
 function setPlayer(side, media, message = "", result = null) {
@@ -684,6 +689,7 @@ function videoEdit(delay = 260, range) {
   const same = settingsKey(file.videoSettings) === settingsKey(settings);
   const wasInvalid = Boolean(file.videoError);
   file.videoDraft = videoFields.map(id => $(id).value);
+  file.videoDraftSettings = error ? settings : null;
   file.videoError = error;
   renderVideoNote(file);
   if (!error && !wasInvalid && same) return;
@@ -879,6 +885,7 @@ async function startOrStop(event) {
   let missed = 0;
   let capped = 0;
   let recovered = 0;
+  let failedDiagnostic = null;
   for (const file of queued) {
     if (job.stopping) break;
     job.index++;
@@ -893,10 +900,12 @@ async function startOrStop(event) {
     syncQueueStatus(row, file, settings, currentLanguage());
     renderExportAction(settings);
     try {
-      if (file.videoError) throw new Error("ui:" + file.videoError);
+      if (file.videoError && !windowsPreview) throw new Error("ui:" + file.videoError);
       file.result = await invoke("convert", {
         jobId: job.id, path: file.path, ...settings,
-        videoSettings: file.videoSettings, adjustment: file.adjustment, frameEdit: file.frameEdit,
+        videoSettings: file.videoError ? diagnosticVideoDraft(file.videoDraftSettings) : file.videoSettings,
+        adjustment: file.adjustment, frameEdit: file.frameEdit,
+        videoValidationError: file.videoError || null,
       });
       file.exportSettings = settings;
       if (file.dependencyError) {
@@ -909,10 +918,14 @@ async function startOrStop(event) {
       if (file.result.source.recovered) recovered++;
       ok++;
     } catch (error) {
-      if (errorText(error) !== "ui:cancelled") {
-        file.error = errorMessage(error);
+      const detail = windowsPreview ? error?.message ?? "ui:diagnosticConversionFailed" : errorText(error);
+      if (detail !== "ui:cancelled") {
+        file.error = errorMessage(detail);
+        if (windowsPreview) {
+          failedDiagnostic = latestDiagnostic = file.diagnostic = error?.diagnostic ?? null;
+        }
         if (file.video) {
-          file.dependencyError = dependencyError(errorText(error));
+          file.dependencyError = dependencyError(detail);
           if (file === selected) renderVideoNote(file);
         }
         failed++;
@@ -936,8 +949,59 @@ async function startOrStop(event) {
       recovered && message("batchGifRecovered", { count: recovered }),
     ],
     warning: Boolean(failed || missed || capped || recovered),
+    failed,
+    diagnostic: failedDiagnostic,
   };
   renderQueue();
+}
+
+function diagnosticVideoDraft(settings) {
+  if (!settings) return null;
+  // A malformed numeric draft cannot be deserialized as conversion settings.
+  const values = [settings.startMs, settings.endMs, settings.fps, settings.edge];
+  return values.every(value => Number.isSafeInteger(value) && value >= 0) &&
+    settings.fps <= 0xffffffff && settings.edge <= 0xffffffff ? settings : null;
+}
+
+let openingDiagnostic = false;
+let savingDiagnostic = false;
+async function showDiagnosticReport(report) {
+  const dialog = $("diagnostic-dialog");
+  if (openingDiagnostic || dialog.open) return;
+  openingDiagnostic = true;
+  $("diagnostic-save").disabled = true;
+  $("diagnostic-text").textContent = "";
+  setText("diagnostic-state", "");
+  dialog.showModal();
+  try {
+    $("diagnostic-text").textContent = await invoke("preview_diagnostic_report", { report });
+    $("diagnostic-text").scrollTop = 0;
+    $("diagnostic-save").disabled = false;
+  } catch {
+    setText("diagnostic-state", message("diagnosticPreviewFailed"));
+  } finally {
+    openingDiagnostic = false;
+  }
+}
+
+async function saveDiagnosticReport() {
+  if (savingDiagnostic) return;
+  savingDiagnostic = true;
+  $("diagnostic-save").disabled = true;
+  $("diagnostic-cancel").disabled = true;
+  setText("diagnostic-state", "");
+  try {
+    const saved = await invoke("save_diagnostic_report", {
+      title: t("saveDiagnosticReport"), filter: t("diagnosticTextFile"),
+    });
+    if (saved) setText("diagnostic-state", message("diagnosticSaved"));
+  } catch (error) {
+    setText("diagnostic-state", message(error === "ui:diagnosticTextOnly" ? "diagnosticTextOnly" : "diagnosticSaveFailed"));
+  } finally {
+    $("diagnostic-save").disabled = false;
+    $("diagnostic-cancel").disabled = false;
+    savingDiagnostic = false;
+  }
 }
 
 for (const id of videoFields) {
@@ -1163,6 +1227,7 @@ const menuEventsReady = appEvents.listen("app-menu-action", ({ payload }) => {
   }
   else if (payload === "check-updates") showUpdateDialog(true);
   else if (payload === "video-dependencies") showVideoDependencies();
+  else if (payload === "diagnostic-report" && windowsPreview) showDiagnosticReport(latestDiagnostic);
   else refreshLanguage(payload, true);
 });
 window.addEventListener("languagechange", updateSystemLanguage);
@@ -1175,6 +1240,12 @@ setDestination(null);
 outcome(null);
 if (windowsPreview) {
   document.body.dataset.platform = "windows";
+  $("failure-diagnostic").onclick = () => showDiagnosticReport(selected?.diagnostic ?? null);
+  $("batch-diagnostic").onclick = () => showDiagnosticReport(batchReport?.diagnostic ?? null);
+  $("diagnostic-save").onclick = saveDiagnosticReport;
+  $("diagnostic-dialog").addEventListener("cancel", event => {
+    if (savingDiagnostic) event.preventDefault();
+  });
   for (const button of $("about-dialog").querySelectorAll("[data-about-link]")) {
     button.onclick = async () => {
       setText("about-error", "");

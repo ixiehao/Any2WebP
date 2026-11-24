@@ -42,6 +42,16 @@ fn words(writer: &mut impl Write, values: &[u32]) -> io::Result<()> {
 }
 
 impl Edit {
+    #[cfg(windows)]
+    pub(crate) fn diagnostic_parameters(&self) -> crate::diagnostics::FrameParameters {
+        use crate::diagnostics::{FrameParameters, InputFormat};
+        let mut formats = self.frames.iter().map(|frame| InputFormat::from_path(Path::new(&frame.path)));
+        let first = formats.next().unwrap_or_default();
+        let input = if formats.any(|format| format != first) { InputFormat::Mixed } else { first };
+        FrameParameters { input, width: self.width, height: self.height,
+            plays: self.plays, count: self.frames.len() }
+    }
+
     pub fn prepare(&self, cancel: &AtomicBool) -> AppResult<Prepared> {
         if cancel.load(Ordering::Relaxed) {
             return Err("ui:cancelled".into());

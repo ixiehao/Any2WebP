@@ -1,6 +1,6 @@
 use crate::adjustment::ImageAdjustment;
 use crate::video_tools::{find_tools, Tools};
-use crate::{check_revision, file_revision, run_process, AppResult};
+use crate::{check_revision, file_revision, run_process, AppResult, ExportFailure, FailureStage};
 use serde::{Deserialize, Serialize};
 use std::{
     fs,
@@ -22,10 +22,10 @@ const fn minimum_clip_ms(fps: u32) -> u64 {
 #[derive(Clone, Copy, Debug, Deserialize, PartialEq, Serialize)]
 #[serde(rename_all = "camelCase")]
 pub struct Settings {
-    start_ms: u64,
-    end_ms: u64,
-    fps: u32,
-    edge: u32,
+    pub(crate) start_ms: u64,
+    pub(crate) end_ms: u64,
+    pub(crate) fps: u32,
+    pub(crate) edge: u32,
 }
 
 pub fn playback_settings(start_ms: u64, end_ms: u64) -> AppResult<Settings> {
@@ -402,11 +402,20 @@ pub fn extract(
     settings: Option<Settings>,
     cancel: Option<&AtomicBool>,
 ) -> AppResult<(Frames, Settings)> {
-    let tools = find_tools(cancel)?;
-    let source = inspect(&PROBE_CACHE, path, &tools, cancel)?;
+    extract_staged(path, settings, cancel).map_err(|error| error.message)
+}
+
+pub(crate) fn extract_staged(
+    path: &Path,
+    settings: Option<Settings>,
+    cancel: Option<&AtomicBool>,
+) -> Result<(Frames, Settings), ExportFailure> {
+    use FailureStage::{VideoDecode, VideoDependencies, VideoProbe, VideoSettings};
+    let tools = VideoDependencies.at(find_tools(cancel))?;
+    let source = VideoProbe.at(inspect(&PROBE_CACHE, path, &tools, cancel))?;
     let settings = settings.unwrap_or(source.info.defaults);
-    let plan = source.info.plan(settings)?;
-    let raw = NamedTempFile::new().map_err(|error| format!("ui:videoTemp:{error}"))?;
+    let plan = VideoSettings.at(source.info.plan(settings))?;
+    let raw = NamedTempFile::new().map_err(|error| VideoDecode.failure(format!("ui:videoTemp:{error}")))?;
     // Preserve the frame already on screen when the cut falls between two
     // source timestamps. Resample after moving the clip origin to time zero.
     let preroll = settings.start_ms.min(2000);
@@ -422,9 +431,9 @@ pub fn extract(
         "-vf", &filter, "-frames:v", &plan.frames.to_string(), "-fps_mode", "passthrough",
         "-c:v", "rawvideo", "-threads:v", "1", "-pix_fmt", "rgba", "-f", "rawvideo",
     ]).arg(raw.path());
-    run_process(command, "FFmpeg", 120, cancel)?;
-    if raw.as_file().metadata().map_err(|_| "ui:invalidVideo")?.len() != plan.bytes {
-        return Err("ui:incompleteVideo".into());
+    VideoDecode.at(run_process(command, "FFmpeg", 120, cancel))?;
+    if raw.as_file().metadata().map_err(|_| VideoDecode.failure("ui:invalidVideo"))?.len() != plan.bytes {
+        return Err(VideoDecode.failure("ui:incompleteVideo"));
     }
     let args = [
         source.info.format.into(),

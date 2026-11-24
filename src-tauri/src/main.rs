@@ -4,6 +4,8 @@
 mod about;
 mod about_links;
 mod adjustment;
+#[cfg(windows)]
+mod diagnostics;
 mod frames;
 #[cfg_attr(windows, path = "localized_menu_windows.rs")]
 mod localized_menu;
@@ -36,7 +38,7 @@ type AppResult<T> = Result<T, String>;
 
 const CODEC_TOOL: &str = "Any2WebP codec";
 
-#[derive(Clone, Copy, Default, Deserialize, PartialEq, Eq)]
+#[derive(Clone, Copy, Default, Deserialize, PartialEq, Eq, Serialize)]
 #[serde(rename_all = "lowercase")]
 enum OutputFormat {
     #[default]
@@ -703,6 +705,38 @@ fn export_directory<'a>(destination: Option<&'a str>, source: Option<&'a Path>) 
         .ok_or_else(|| "ui:destinationMissing".into())
 }
 
+#[derive(Clone, Copy, Debug, Serialize, Deserialize)]
+#[serde(rename_all = "SCREAMING_SNAKE_CASE")]
+enum FailureStage {
+    Job,
+    Input,
+    Destination,
+    VideoDependencies,
+    VideoProbe,
+    VideoSettings,
+    VideoDecode,
+    Convert,
+    Verify,
+    Save,
+}
+
+struct ExportFailure {
+    #[cfg_attr(not(windows), allow(dead_code))]
+    stage: FailureStage,
+    message: String,
+}
+
+impl FailureStage {
+    fn failure(self, message: impl Into<String>) -> ExportFailure {
+        ExportFailure { stage: self, message: message.into() }
+    }
+
+    fn at<T, E: Into<String>>(self, result: Result<T, E>) -> Result<T, ExportFailure> {
+        result.map_err(|error| self.failure(error))
+    }
+}
+
+#[cfg(test)]
 fn export(
     path: String,
     destination: Option<String>,
@@ -713,59 +747,74 @@ fn export(
     adjustment: adjustment::ImageAdjustment,
     cancel: Arc<AtomicBool>,
 ) -> AppResult<Conversion> {
+    export_staged(path, destination, target_bytes, format, video_settings, frame_edit, adjustment, cancel)
+        .map_err(|error| error.message)
+}
+
+fn export_staged(
+    path: String,
+    destination: Option<String>,
+    target_bytes: u64,
+    format: OutputFormat,
+    video_settings: Option<video::Settings>,
+    frame_edit: Option<frames::Edit>,
+    adjustment: adjustment::ImageAdjustment,
+    cancel: Arc<AtomicBool>,
+) -> Result<Conversion, ExportFailure> {
+    use FailureStage::{Convert, Destination, Input, Save, Verify};
     if cancel.load(Ordering::Relaxed) {
-        return Err("ui:cancelled".into());
+        return Err(FailureStage::Job.failure("ui:cancelled"));
     }
-    let prepared = frame_edit.as_ref().map(|edit| edit.prepare(&cancel)).transpose()?;
+    let prepared = Input.at(frame_edit.as_ref().map(|edit| edit.prepare(&cancel)).transpose())?;
     let (source, source_revision) = if let Some(edit) = &prepared {
         let source = Path::new(&path);
         if !source.is_absolute() || source.file_name().is_none() {
-            return Err("ui:sourceMissing".into());
+            return Err(Input.failure("ui:sourceMissing"));
         }
         (source, edit.revision.clone())
     } else {
-        let source = input_path(&path)?;
-        (source, file_revision(source)?)
+        let source = Input.at(input_path(&path))?;
+        (source, Input.at(file_revision(source))?)
     };
-    let directory = export_directory(destination.as_deref(), Some(source))?;
-    let staging = tempfile::Builder::new()
+    let directory = Destination.at(export_directory(destination.as_deref(), Some(source)))?;
+    let staging = Destination.at(tempfile::Builder::new()
         .prefix(".any2webp-work-")
         .tempdir_in(directory)
-        .map_err(|error| format!("ui:destinationWrite:{error}"))?;
-    let temp = NamedTempFile::new_in(staging.path())
-        .map_err(|error| format!("ui:{}:{error}", format.save_error()))?;
+        .map_err(|error| format!("ui:destinationWrite:{error}")))?;
+    let temp = Destination.at(NamedTempFile::new_in(staging.path())
+        .map_err(|error| format!("ui:{}:{error}", format.save_error())))?;
     let target = target_bytes.to_string();
     let (stdout, applied_settings) = if let Some(edit) = &prepared {
         let operation = if format == OutputFormat::Gif { "convert-frames-gif" } else { "convert-frames" };
-        (adjustment.run_codec(&[Path::new(operation), edit.path(), temp.path(), Path::new(&target)], Some(&cancel))?, None)
+        (Convert.at(adjustment.run_codec(&[Path::new(operation), edit.path(), temp.path(), Path::new(&target)], Some(&cancel)))?, None)
     } else if video::is_video(source) {
-        let (frames, settings) = video::extract(source, video_settings, Some(&cancel))?;
+        let (frames, settings) = video::extract_staged(source, video_settings, Some(&cancel))?;
         let operation = if format == OutputFormat::Gif { "convert-video-gif" } else { "convert-video" };
-        (frames.encode(operation, temp.path(), &target, adjustment, &cancel)?, Some(settings))
+        (Convert.at(frames.encode(operation, temp.path(), &target, adjustment, &cancel))?, Some(settings))
     } else {
         let operation = if format == OutputFormat::Gif { "convert-gif" } else { "convert" };
-        (adjustment.run_codec(&[Path::new(operation), source, temp.path(), Path::new(&target)], Some(&cancel))?, None)
+        (Convert.at(adjustment.run_codec(&[Path::new(operation), source, temp.path(), Path::new(&target)], Some(&cancel)))?, None)
     };
     let result: CodecResult =
-        serde_json::from_slice(&stdout).map_err(|_| "ui:invalidResult")?;
+        serde_json::from_slice(&stdout).map_err(|_| Verify.failure("ui:invalidResult"))?;
     if result.output.format != format.label() ||
         (result.unchanged && (format != OutputFormat::Webp || prepared.is_some())) {
-        return Err("ui:outputIntegrity".into());
+        return Err(Verify.failure("ui:outputIntegrity"));
     }
     if let Some(edit) = &prepared {
-        edit.verify(&cancel)?;
+        Verify.at(edit.verify(&cancel))?;
     } else {
-        check_revision(source, &source_revision)?;
+        Verify.at(check_revision(source, &source_revision))?;
     }
     let (output, output_revision) = if result.unchanged {
         if cancel.load(Ordering::Relaxed) {
-            return Err("ui:cancelled".into());
+            return Err(Verify.failure("ui:cancelled"));
         }
-        check_revision(source, &source_revision)?;
+        Verify.at(check_revision(source, &source_revision))?;
         (source.to_owned(), source_revision.clone())
     } else {
-        let (output, mut file) = publish(temp, directory, source, &result.source.format, format, result.output.bytes, &cancel)?;
-        let revision = verify_delivered(&output, &mut file, result.output.bytes, format)?;
+        let (output, mut file) = Save.at(publish(temp, directory, source, &result.source.format, format, result.output.bytes, &cancel))?;
+        let revision = Verify.at(verify_delivered(&output, &mut file, result.output.bytes, format))?;
         (output, revision)
     };
     let mode = if result.unchanged {
@@ -790,6 +839,31 @@ fn export(
     })
 }
 
+#[derive(Deserialize)]
+#[serde(rename_all = "camelCase")]
+enum VideoValidationError {
+    InvalidTrim,
+    InvalidDimensions,
+    MinFrames,
+    MaxFrames,
+}
+
+impl VideoValidationError {
+    fn failure(self) -> ExportFailure {
+        FailureStage::VideoSettings.failure(match self {
+            Self::InvalidTrim => "ui:invalidTrim",
+            Self::InvalidDimensions => "ui:invalidDimensions",
+            Self::MinFrames => "ui:minFrames",
+            Self::MaxFrames => "ui:maxFrames",
+        })
+    }
+}
+
+#[cfg(windows)]
+type ConvertError = diagnostics::ConversionFailure;
+#[cfg(not(windows))]
+type ConvertError = String;
+
 #[tauri::command]
 async fn convert(
     jobs: State<'_, Job>,
@@ -801,14 +875,28 @@ async fn convert(
     video_settings: Option<video::Settings>,
     frame_edit: Option<frames::Edit>,
     adjustment: Option<adjustment::ImageAdjustment>,
-) -> AppResult<Conversion> {
-    let cancel = jobs.begin(job_id)?;
-    let result = worker(move || export(
-        path, destination, target_bytes, format.unwrap_or_default(), video_settings, frame_edit,
-        adjustment.unwrap_or_default(), cancel,
-    )).await;
-    jobs.finish();
-    result
+    video_validation_error: Option<VideoValidationError>,
+) -> Result<Conversion, ConvertError> {
+    let format = format.unwrap_or_default();
+    let adjustment = adjustment.unwrap_or_default();
+    #[cfg(windows)]
+    let report = diagnostics::Report::conversion(Path::new(&path), target_bytes, format,
+        video_settings, frame_edit.as_ref(), adjustment);
+    let result = async {
+        let cancel = FailureStage::Job.at(jobs.begin(job_id))?;
+        let outcome = if let Some(error) = video_validation_error {
+            Ok(Err(error.failure()))
+        } else {
+            worker(move || Ok(export_staged(path, destination, target_bytes, format, video_settings,
+                frame_edit, adjustment, cancel))).await
+        };
+        jobs.finish();
+        FailureStage::Job.at(outcome)?
+    }.await;
+    #[cfg(windows)]
+    return result.map_err(|error| report.with_failure(error));
+    #[cfg(not(windows))]
+    result.map_err(|error| error.message)
 }
 
 #[tauri::command]
@@ -858,7 +946,7 @@ fn main() {
     #[cfg(target_os = "macos")]
     let builder = builder.manage(about::AboutPanel::default());
     #[cfg(windows)]
-    let builder = builder.setup(|app| {
+    let builder = builder.manage(diagnostics::Preview::default()).setup(|app| {
         use tauri::Manager;
         if let Some(window) = app.get_webview_window("main") {
             if let Err(error) = windows_platform::fit_startup_window(&window) {
@@ -879,6 +967,10 @@ fn main() {
             localized_menu::set_menu_language,
             #[cfg(windows)]
             localized_menu::open_about_link,
+            #[cfg(windows)]
+            diagnostics::preview_diagnostic_report,
+            #[cfg(windows)]
+            diagnostics::save_diagnostic_report,
             choose_inputs,
             choose_output,
             probe_video,

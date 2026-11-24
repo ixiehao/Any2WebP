@@ -83,6 +83,7 @@
       </div>
       <div id="queue" class="queue" aria-label="已添加的文件" data-i18n-aria-label="addedFiles"></div>
       <p class="status" id="status" role="status" aria-live="polite"></p>
+      <button id="failure-diagnostic" class="text-button failure-diagnostic" type="button" aria-haspopup="dialog" data-i18n="exportDiagnosticReport" hidden>导出诊断报告</button>
 
     </aside>
 
@@ -275,6 +276,7 @@
       </div>
       <div class="inspector-footer">
         <p id="batch-status" class="batch-status" role="status" hidden></p>
+        <button id="batch-diagnostic" class="text-button" type="button" aria-haspopup="dialog" data-i18n="exportDiagnosticReport" hidden>导出诊断报告</button>
         <progress id="batch-progress" class="batch-progress" max="1" value="0" aria-label="批次进度" data-i18n-aria-label="batchProgress" hidden></progress>
         <button id="run" class="button primary" type="submit" form="settings" disabled><span id="run-label">导出 WebP</span><svg aria-hidden="true"><use href="#arrow"/></svg></button>
       </div>
@@ -392,6 +394,16 @@
         <button id="trim-cancel" class="button secondary" type="button" data-i18n="trimCancel">取消</button>
         <button id="trim-confirm" class="button primary" type="submit" data-i18n="trimConfirm">确认剪切</button>
       </footer>
+    </form>
+  </dialog>
+  <dialog id="diagnostic-dialog" class="update-dialog diagnostic-dialog" aria-labelledby="diagnostic-heading">
+    <h2 id="diagnostic-heading" data-i18n="diagnosticPreview">诊断报告预览</h2>
+    <p class="update-note" data-i18n="diagnosticIntro">请先核对下面的报告。选择保存后，可将它写入本地文本文件。</p>
+    <pre id="diagnostic-text" class="diagnostic-text" tabindex="0" aria-labelledby="diagnostic-heading"></pre>
+    <p id="diagnostic-state" class="update-note diagnostic-state" role="status"></p>
+    <form method="dialog" class="dialog-actions">
+      <button id="diagnostic-cancel" class="button secondary" type="submit" data-i18n="diagnosticCancel" autofocus>取消</button>
+      <button id="diagnostic-save" class="button primary" type="button" data-i18n="saveDiagnosticReport" disabled>保存诊断报告</button>
     </form>
   </dialog>
   <dialog id="about-dialog" class="update-dialog about-dialog" aria-labelledby="about-heading">
